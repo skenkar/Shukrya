@@ -1,0 +1,1667 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>المساعد الآلي</title>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',Tahoma,Arial,sans-serif;direction:rtl;background:#F0F9FF;color:#1e293b;font-size:14px}
+.header{background:#0369A1;padding:12px 18px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;gap:8px;flex-wrap:wrap}
+.header-title{color:#fff;font-size:15px;font-weight:700}
+.header-sub{color:#BAE6FD;font-size:11px;margin-top:2px}
+.hright{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.hdate{background:rgba(255,255,255,0.15);color:#fff;font-size:11px;padding:4px 10px;border-radius:20px}
+.saved{font-size:11px;color:#BAE6FD}
+.hbtn{background:rgba(255,255,255,0.2);color:#fff;border:1px solid rgba(255,255,255,0.3);padding:5px 12px;border-radius:18px;font-size:11px;cursor:pointer;font-family:inherit;font-weight:600}
+.hbtn:hover{background:rgba(255,255,255,0.3)}
+.tabs{display:flex;background:#fff;border-bottom:1px solid #e2e8f0;overflow-x:auto;padding:0 12px;position:sticky;top:55px;z-index:40}
+.tab{padding:10px 13px;font-size:13px;color:#64748b;cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap}
+.tab.active{color:#0369A1;border-bottom-color:#0369A1;font-weight:600}
+.tab:hover{color:#0369A1}
+.pg{padding:14px;max-width:1100px;margin:0 auto}
+.hidden{display:none!important}
+.sec{font-size:11px;font-weight:700;color:#64748b;margin:14px 0 8px;letter-spacing:0.05em}
+.kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin-bottom:14px}
+.kpi{background:#fff;border-radius:10px;padding:12px 14px;border:1px solid #e2e8f0}
+.kpi-l{font-size:11px;color:#64748b;margin-bottom:3px}
+.kpi-v{font-size:22px;font-weight:700}
+.kpi-s{font-size:11px;color:#94a3b8;margin-top:2px}
+.tscroll{overflow-x:auto;border-radius:12px;border:1px solid #e2e8f0;margin-bottom:10px}
+table{width:100%;border-collapse:collapse;font-size:12px;background:#fff}
+thead th{text-align:right;padding:9px 10px;background:#F8FAFC;color:#64748b;font-weight:700;border-bottom:1px solid #e2e8f0;white-space:nowrap;font-size:11px}
+tbody td{padding:0;border-bottom:1px solid #f1f5f9;color:#1e293b;vertical-align:middle;cursor:pointer}
+tbody tr:last-child td{border-bottom:none}
+tbody tr:hover td{background:#F8FAFC}
+.cell-inner{padding:8px 10px;min-height:34px;display:flex;align-items:center}
+.cell-edit{width:100%;padding:6px 8px;border:2px solid #0369A1;border-radius:6px;font-size:12px;background:#fff;color:#1e293b;font-family:inherit;outline:none;min-width:80px}
+select.cell-edit{cursor:pointer}
+td.editing{background:#EFF6FF!important}
+.bdg{display:inline-block;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:600}
+.g{background:#D1FAE5;color:#065F46}
+.a{background:#FEF3C7;color:#92400E}
+.r{background:#FEE2E2;color:#991B1B}
+.s{background:#E0F2FE;color:#0369A1}
+.gr{background:#F1F5F9;color:#475569}
+.pu{background:#EDE9FE;color:#5B21B6}
+.card{background:#fff;border:1px solid #e2e8f0;border-radius:12px;margin-bottom:10px;overflow:hidden}
+.card-h{padding:11px 14px;display:flex;align-items:flex-start;justify-content:space-between;gap:8px;border-bottom:1px solid #f1f5f9}
+.card-hn{font-size:14px;font-weight:600}
+.card-hs{font-size:11px;color:#94a3b8;margin-top:2px}
+.alert-card{background:#fff;border:1px solid #e2e8f0;border-radius:12px;margin-bottom:9px;padding:12px 14px;display:flex;gap:10px;align-items:flex-start}
+.ai{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0}
+.air{background:#FEE2E2}.aia{background:#FEF3C7}.aib{background:#E0F2FE}
+.at{font-size:13px;font-weight:600}
+.ad{font-size:12px;color:#64748b;margin-top:2px}
+.abtn{display:inline-block;padding:4px 10px;border-radius:6px;font-size:11px;border:1px solid #cbd5e1;background:#fff;color:#0369A1;cursor:pointer;margin-top:6px;margin-left:4px;font-family:inherit;font-weight:500}
+.abtn:hover{background:#E0F2FE}
+.abtn-r{color:#991B1B;border-color:#fca5a5}.abtn-r:hover{background:#FEE2E2}
+.abtn-e{color:#5B21B6;border-color:#c4b5fd}.abtn-e:hover{background:#EDE9FE}
+.pb{height:5px;background:#F1F5F9;border-radius:3px;overflow:hidden;margin-top:5px}
+.pf{height:100%;border-radius:3px;background:#0EA5E9}
+.fc{background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:12px 14px;margin-bottom:10px}
+.fr{display:flex;justify-content:space-between;font-size:12px;padding:4px 0;border-bottom:1px solid #f1f5f9}
+.fr:last-child{border-bottom:none;font-weight:700;padding-top:7px}
+.mnav{display:flex;align-items:center;gap:10px;margin-bottom:12px;background:#fff;padding:9px 14px;border-radius:10px;border:1px solid #e2e8f0}
+.mnbtn{padding:5px 13px;border:1px solid #e2e8f0;border-radius:7px;background:#fff;cursor:pointer;font-size:13px;color:#0369A1;font-weight:600;font-family:inherit}
+.mnbtn:hover{background:#E0F2FE}
+.mnlbl{flex:1;text-align:center;font-size:14px;font-weight:700}
+.add-row{display:flex;align-items:center;gap:6px;padding:9px 14px;border:1.5px dashed #cbd5e1;border-radius:10px;background:none;color:#0369A1;font-size:13px;cursor:pointer;font-family:inherit;font-weight:600;width:100%;justify-content:center;margin-top:8px}
+.add-row:hover{background:#E0F2FE;border-color:#0EA5E9}
+.mbg{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.4);z-index:200;display:none;align-items:center;justify-content:center}
+.mbg.open{display:flex}
+.mbox{background:#fff;border-radius:14px;padding:20px;width:95%;max-width:460px;max-height:90vh;overflow-y:auto}
+.mt{font-size:15px;font-weight:700;margin-bottom:14px}
+.fg{margin-bottom:10px}
+.fl{font-size:12px;color:#64748b;margin-bottom:4px;display:block;font-weight:600}
+.fi{width:100%;padding:8px 10px;border:1px solid #e2e8f0;border-radius:8px;font-size:13px;background:#fff;color:#1e293b;font-family:inherit}
+.fi:focus{outline:none;border-color:#0369A1}
+textarea.fi{resize:vertical;min-height:90px}
+.ma{display:flex;gap:8px;margin-top:14px}
+.bp{flex:1;padding:9px;background:#0369A1;color:#fff;border:none;border-radius:9px;font-size:14px;cursor:pointer;font-family:inherit;font-weight:600}
+.bp:hover{background:#0284c7}
+.bc{flex:1;padding:9px;background:#fff;border:1px solid #e2e8f0;border-radius:9px;font-size:14px;cursor:pointer;font-family:inherit;color:#475569}
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#1e293b;color:#fff;padding:8px 18px;border-radius:20px;font-size:13px;z-index:300;opacity:0;transition:opacity 0.3s;pointer-events:none;white-space:nowrap}
+.toast.show{opacity:1}
+/* Weekly tasks */
+.task-card{background:#fff;border:1px solid #e2e8f0;border-radius:12px;margin-bottom:8px;overflow:hidden}
+.task-h{padding:10px 14px;display:flex;align-items:center;justify-content:space-between;gap:8px}
+.task-name{font-size:13px;font-weight:600;color:#1e293b}
+.task-day{font-size:11px;color:#0369A1;font-weight:700;margin-bottom:3px}
+.task-desc{font-size:12px;color:#64748b;padding:0 14px 10px;line-height:1.6}
+.task-desc-edit{width:100%;padding:8px 10px;border:1px solid #e2e8f0;border-radius:8px;font-size:12px;font-family:inherit;color:#1e293b;resize:vertical;min-height:60px}
+.task-desc-edit:focus{outline:none;border-color:#0369A1}
+/* Excel upload */
+.upload-zone{border:2px dashed #cbd5e1;border-radius:12px;padding:24px;text-align:center;cursor:pointer;transition:all 0.2s;background:#fff;margin-bottom:12px}
+.upload-zone:hover{border-color:#0369A1;background:#E0F2FE}
+.upload-zone input{display:none}
+.upload-icon{font-size:32px;margin-bottom:8px}
+.upload-title{font-size:14px;font-weight:600;color:#0369A1;margin-bottom:4px}
+.upload-sub{font-size:12px;color:#64748b}
+.sbox{background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:14px 16px;margin-bottom:10px}
+.sbox h3{font-size:14px;font-weight:700;margin-bottom:8px;color:#0369A1}
+.sbox p{font-size:12px;color:#64748b;line-height:1.7;margin-bottom:10px}
+.sbig{padding:10px 18px;border-radius:9px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;border:none;margin-left:8px;margin-bottom:6px}
+.exp{background:#0369A1;color:#fff}.exp:hover{background:#0284c7}
+.imp{background:#065F46;color:#fff}.imp:hover{background:#047857}
+.rst{background:#FEE2E2;color:#991B1B;border:1px solid #fca5a5}.rst:hover{background:#FECACA}
+.col-map{background:#F8FAFC;border:1px solid #e2e8f0;border-radius:10px;padding:12px;margin-top:10px;font-size:12px}
+.col-map-row{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.col-map-label{min-width:130px;color:#64748b;font-weight:600}
+.reason-badge{display:inline-block;padding:2px 8px;background:#FEF3C7;color:#92400E;border-radius:10px;font-size:11px;margin-top:3px}
+.xl-preview{background:#F8FAFC;border:1px solid #e2e8f0;border-radius:10px;padding:10px;margin-top:10px;font-size:12px;max-height:200px;overflow-y:auto}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div>
+    <div class="header-title">المساعد الآلي</div>
+    
+  </div>
+  <div class="hright">
+    <div class="saved" id="saved-ind">✓ محفوظ</div>
+    <div class="hdate" id="hdate"></div>
+
+
+  </div>
+</div>
+
+<div class="tabs">
+  <div class="tab active" onclick="goTab('home')">الرئيسية</div>
+  <div class="tab" onclick="goTab('projects')">المشاريع</div>
+  <div class="tab" onclick="goTab('payments')">الدفعات</div>
+  <div class="tab" onclick="goTab('alerts')">التنبيهات</div>
+  <div class="tab" onclick="goTab('monthly')">الشهري</div>
+  <div class="tab" onclick="goTab('financial')">المالية</div>
+  <div class="tab" onclick="goTab('meetings')">اجتماعات ومهام يومية</div>
+  <div class="tab" onclick="goTab('templates')">القوالب</div>
+  <div class="tab" onclick="goTab('report')">التقرير</div>
+</div>
+
+<div class="pg">
+
+<!-- HOME -->
+<div id="tab-home">
+  <div class="kpi-grid">
+    <div class="kpi"><div class="kpi-l">المشاريع القائمة</div><div class="kpi-v" style="color:#0369A1" id="h-p">0</div></div>
+    <div class="kpi"><div class="kpi-l">تحت الطرح</div><div class="kpi-v" style="color:#5B21B6" id="h-t">0</div></div>
+    <div class="kpi"><div class="kpi-l">مخرجات متأخرة</div><div class="kpi-v" style="color:#991B1B" id="h-delDel">0</div><div class="kpi-s">تسليم المخرج</div></div>
+    <div class="kpi"><div class="kpi-l">دفعات متأخرة</div><div class="kpi-v" style="color:#991B1B" id="h-delPay">0</div><div class="kpi-s">تاريخ الدفعة</div></div>
+    <div class="kpi"><div class="kpi-l">مخرجات هذا الشهر</div><div class="kpi-v" style="color:#92400E" id="h-uDel">0</div><div class="kpi-s">قادمة</div></div>
+    <div class="kpi"><div class="kpi-l">دفعات هذا الشهر</div><div class="kpi-v" style="color:#92400E" id="h-uPay">0</div><div class="kpi-s">قادمة</div></div>
+  </div>
+
+  <div class="sec">اجتماعات ومهام اليوم</div>
+  <div id="weekly-summary"></div>
+
+  <div class="sec" style="margin-top:16px">تنبيهات اليوم</div>
+  <div id="home-alerts"></div>
+
+  <div class="sec" style="margin-top:14px;color:#2563EB">تذكير إرسال إيميل — تسليم المخرج</div>
+  <div id="home-email-reminders"></div>
+
+  <div class="sec" style="margin-top:16px">مخرجات قادمة (خلال 30 يوم) — تواريخ التذكير (3 أسابيع / أسبوعين / يوم)</div>
+  <div id="home-del-table"></div>
+
+  <div class="sec" style="margin-top:14px">دفعات هذا الشهر</div>
+  <div id="home-pay-table"></div>
+
+  <div class="sec" style="margin-top:14px">ملخص المحافظ</div>
+  <div id="home-summary"></div>
+</div>
+
+<!-- PROJECTS -->
+<div id="tab-projects" class="hidden">
+  <p style="font-size:12px;color:#64748b;margin-bottom:10px;padding:8px 12px;background:#E0F2FE;border-radius:8px">اضغط على أي خانة لتعديلها مباشرة</p>
+  <div class="sec">المشاريع القائمة</div>
+  <div class="tscroll">
+    <table>
+      <thead><tr>
+        <th>اسم المشروع</th><th>القسم</th>
+        <th>القيمة (ريال)</th><th>المدة (شهر)</th>
+        <th>نوع المشروع</th><th>الحالة</th><th></th>
+      </tr></thead>
+      <tbody id="proj-tbody"></tbody>
+    </table>
+  </div>
+  <button class="add-row" onclick="addProject()">+ إضافة مشروع قائم</button>
+
+  <div class="sec" style="margin-top:16px">المشاريع تحت الطرح</div>
+  <div class="tscroll">
+    <table>
+      <thead><tr><th>اسم المشروع</th><th>القسم</th><th>نوع المشروع</th><th>ملاحظات</th><th></th></tr></thead>
+      <tbody id="tender-tbody"></tbody>
+    </table>
+  </div>
+  <button class="add-row" onclick="addTender()">+ إضافة مشروع تحت الطرح</button>
+</div>
+
+<!-- PAYMENTS -->
+<div id="tab-payments" class="hidden">
+  <p style="font-size:12px;color:#64748b;margin-bottom:10px;padding:8px 12px;background:#E0F2FE;border-radius:8px">اضغط على أي خانة لتعديلها مباشرة</p>
+  <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px">
+    <select class="fi" style="width:auto" id="f-dep" onchange="renderPayments()">
+      <option value="">كل المحافظ</option><option value="G">G</option>
+      <option value="F">F</option><option value="H">H</option>
+    </select>
+    <select class="fi" style="width:auto" id="f-st" onchange="renderPayments()">
+      <option value="">كل الحالات</option>
+      <option value="Paid">مدفوعة</option>
+      <option value="Under Process">تحت الصرف</option>
+      <option value="Delivered">تم تسليم المخرجات</option>
+      <option value="Delayed">لم يتم تسليم المخرجات — متأخر</option>
+      <option value="Not Started">لم تبدأ</option>
+    </select>
+  </div>
+  <div class="tscroll">
+    <table>
+      <thead><tr>
+        <th>المشروع</th><th>القسم</th><th>#</th><th>الربع</th>
+        <th>القيمة (ريال)</th><th>تسليم المخرج</th><th>تاريخ الدفعة</th>
+        <th>مرحلة المطالبة</th><th>سبب التأخير</th><th></th>
+      </tr></thead>
+      <tbody id="pay-tbody"></tbody>
+    </table>
+  </div>
+  <button class="add-row" onclick="addPayment()">+ إضافة دفعة جديدة</button>
+</div>
+
+<!-- ALERTS -->
+<div id="tab-alerts" class="hidden">
+  <div class="sec">التنبيهات النشطة</div>
+  <div id="alerts-list"></div>
+</div>
+
+<!-- MONTHLY -->
+<div id="tab-monthly" class="hidden">
+  <div class="mnav">
+    <button class="mnbtn" onclick="chM(-1)">◀ السابق</button>
+    <div class="mnlbl" id="mlbl"></div>
+    <button class="mnbtn" onclick="chM(1)">التالي ▶</button>
+  </div>
+  <div id="monthly-content"></div>
+</div>
+
+<!-- FINANCIAL -->
+<div id="tab-financial" class="hidden"><div id="fin-content"></div></div>
+
+<!-- MEETINGS & TASKS -->
+<div id="tab-meetings" class="hidden">
+  <div class="sec">الاجتماعات الأسبوعية</div>
+  <p style="font-size:12px;color:#64748b;margin-bottom:8px;padding:8px 12px;background:#E0F2FE;border-radius:8px">اضغط على أي خانة لتعديلها مباشرة</p>
+  <div class="tscroll">
+    <table>
+      <thead><tr><th>اسم الاجتماع</th><th>التكرار</th><th>اليوم</th><th>التوقيت</th><th>الوصف</th><th></th></tr></thead>
+      <tbody id="meet-tbody"></tbody>
+    </table>
+  </div>
+  <button class="add-row" onclick="addMeeting()">+ إضافة اجتماع</button>
+
+  <div class="sec" style="margin-top:18px">المهام الأسبوعية</div>
+  <p style="font-size:12px;color:#64748b;margin-bottom:8px;padding:8px 12px;background:#E0F2FE;border-radius:8px">اضغط على أي خانة لتعديلها مباشرة</p>
+  <div class="tscroll">
+    <table>
+      <thead><tr><th>اسم المهمة</th><th>اليوم</th><th>الوصف</th><th></th></tr></thead>
+      <tbody id="task-tbody"></tbody>
+    </table>
+  </div>
+  <button class="add-row" onclick="addTask()">+ إضافة مهمة</button>
+</div>
+
+<!-- TEMPLATES -->
+<div id="tab-templates" class="hidden">
+  <div class="sec">قوالب الإيميلات — اضغط على النص لتعديله</div>
+  <div id="tpl-cards"></div>
+</div>
+
+<!-- REPORT TAB -->
+<div id="tab-report" class="hidden">
+  <div class="fc" style="margin-bottom:14px">
+    <div style="font-size:13px;font-weight:700;margin-bottom:12px;color:#0369A1">اختر أقسام التقرير</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px">
+      <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer"><input type="checkbox" id="rpt-financial" checked> الملخص المالي للمحافظ</label>
+      <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer"><input type="checkbox" id="rpt-payments" checked> تفاصيل الدفعات</label>
+      <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer"><input type="checkbox" id="rpt-projects" checked> المشاريع القائمة</label>
+      <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer"><input type="checkbox" id="rpt-tenders" checked> المشاريع تحت الطرح</label>
+      <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer"><input type="checkbox" id="rpt-delayed"> الدفعات المتأخرة فقط</label>
+      <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer"><input type="checkbox" id="rpt-monthly"> مخرجات ودفعات هذا الشهر</label>
+    </div>
+    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+      <button class="sbig exp" onclick="printReport()" style="padding:8px 18px">طباعة / حفظ PDF</button>
+      <button class="abtn" onclick="renderReport()">معاينة</button>
+      <span style="font-size:12px;color:#64748b">اضغط "معاينة" أولاً ثم "طباعة"</span>
+    </div>
+  </div>
+  <div id="report-content"></div>
+</div>
+
+<!-- SYNC -->
+<div id="tab-sync" class="hidden">
+  <div class="sbox">
+    <h3>تصدير البيانات</h3>
+    <p>صدّري بياناتك الحالية لمشاركتها مع الفريق.</p>
+    <button class="sbig exp" onclick="exportData()">تصدير JSON</button>
+  </div>
+  <div class="sbox">
+    <h3>استيراد بيانات</h3>
+    <p>استورد ملف JSON من زميل لتحديث البيانات.</p>
+    <button class="sbig imp" onclick="document.getElementById('imp-f').click()">استيراد JSON</button>
+    <input type="file" id="imp-f" accept=".json" style="display:none" onchange="importData(this)">
+  </div>
+  <div class="sbox">
+    <h3>إعادة تعيين</h3>
+    <p>رجوع للبيانات الأصلية — يمسح كل التعديلات.</p>
+    <button class="sbig rst" onclick="resetData()">إعادة تعيين</button>
+  </div>
+</div>
+</div>
+
+<!-- Email Modal -->
+<div class="mbg" id="email-modal">
+  <div class="mbox">
+    <div class="mt" id="em-title">إيميل</div>
+    <div class="fg"><label class="fl">إلى</label><input class="fi" id="em-to" value="مدير المشروع"></div>
+    <div class="fg"><label class="fl">الموضوع</label><input class="fi" id="em-subj"></div>
+    <div class="fg">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+        <label class="fl" style="margin:0">نص الرسالة</label>
+        <button class="abtn" style="margin:0;font-size:11px" onclick="insertTable()">+ إدراج جدول</button>
+      </div>
+      <textarea class="fi" id="em-body" style="min-height:180px;font-family:monospace;font-size:12px"></textarea>
+    </div>
+    <div style="font-size:11px;color:#94a3b8;margin-bottom:8px">الجدول سيظهر منسقاً عند الإرسال</div>
+    <div class="ma">
+      <button class="bp" onclick="copyEmail()">نسخ الإيميل</button>
+      <button class="bc" onclick="closeM('email-modal')">إغلاق</button>
+    </div>
+  </div>
+</div>
+
+<!-- Task Edit Modal -->
+<div class="mbg" id="task-modal">
+  <div class="mbox">
+    <div class="mt" id="task-modal-title">تعديل المهمة</div>
+    <div class="fg"><label class="fl">اسم المهمة</label><input class="fi" id="tm-name"></div>
+    <div class="fg"><label class="fl">اليوم</label>
+      <select class="fi" id="tm-day">
+        <option>الأحد</option><option>الاثنين</option><option>الثلاثاء</option>
+        <option>الأربعاء</option><option>الخميس</option><option>يومي</option><option>أسبوعي</option>
+      </select>
+    </div>
+    <div class="fg"><label class="fl">وصف تفصيلي</label><textarea class="fi" id="tm-desc" placeholder="أضيفي أي تفاصيل أو ملاحظات..."></textarea></div>
+    <input type="hidden" id="tm-id">
+    <div class="ma">
+      <button class="bp" onclick="saveTask()">حفظ</button>
+      <button class="bc" onclick="closeM('task-modal')">إلغاء</button>
+    </div>
+  </div>
+</div>
+
+<!-- Meeting Modal -->
+<div class="mbg" id="meet-modal">
+  <div class="mbox">
+    <div class="mt" id="meet-modal-title">اجتماع</div>
+    <div class="fg"><label class="fl">اسم الاجتماع</label><input class="fi" id="mmt-name"></div>
+    <div class="fg"><label class="fl">التكرار</label>
+      <select class="fi" id="mmt-freq">
+        <option>أسبوعي</option><option>كل أسبوعين</option><option>شهري</option><option>ربع سنوي</option><option>عند الحاجة</option>
+      </select>
+    </div>
+    <div class="fg"><label class="fl">اليوم</label>
+      <select class="fi" id="mmt-day">
+        <option>الأحد</option><option>الاثنين</option><option>الثلاثاء</option>
+        <option>الأربعاء</option><option>الخميس</option><option>الجمعة</option><option>السبت</option>
+      </select>
+    </div>
+    <div class="fg"><label class="fl">التوقيت</label>
+      <select class="fi" id="mmt-time">
+        <option value="">-- اختر الوقت --</option>
+        <option>7:00 ص</option><option>7:30 ص</option>
+        <option>8:00 ص</option><option>8:30 ص</option>
+        <option>9:00 ص</option><option>9:30 ص</option>
+        <option>10:00 ص</option><option>10:30 ص</option>
+        <option>11:00 ص</option><option>11:30 ص</option>
+        <option>12:00 م</option><option>12:30 م</option>
+        <option>1:00 م</option><option>1:30 م</option>
+        <option>2:00 م</option><option>2:30 م</option>
+        <option>3:00 م</option><option>3:30 م</option>
+        <option>4:00 م</option><option>4:30 م</option>
+        <option>5:00 م</option><option>5:30 م</option>
+        <option>6:00 م</option>
+      </select>
+    </div>
+    <div class="fg"><label class="fl">الوصف</label><input class="fi" id="mmt-desc"></div>
+    <input type="hidden" id="mmt-id">
+    <div class="ma">
+      <button class="bp" onclick="saveMeeting()">حفظ</button>
+      <button class="bc" onclick="closeM('meet-modal')">إلغاء</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ===== STATUS OPTIONS =====
+var STATUS_OPTS = ['Not Started','Delivered','Delayed','Under Process','Paid','راسل','مشروعي'];
+var STATUS_MAP = {
+  'Not Started':{l:'لم تبدأ',c:'gr'},
+  'Delivered':{l:'تم تسليم المخرجات',c:'g'},
+  'Delayed':{l:'لم يتم التسليم — متأخر',c:'r'},
+  'Under Process':{l:'تحت الصرف',c:'s'},
+  'Paid':{l:'مدفوعة',c:'g'},
+  'راسل':{l:'راسل',c:'a'},
+  'مشروعي':{l:'مشروعي',c:'pu'}
+};
+
+// ===== DEFAULT DATA =====
+var DD={
+  projects:[
+    {id:1,name:'تطوير',dep:'G',val:1687398,duration:12,projType:'استراتيجي',status:'قائم'},
+    {id:2,name:'تدقيق',dep:'F',val:9882410,duration:24,projType:'استراتيجي',status:'قائم'},
+    {id:3,name:'بناء',dep:'F',val:23999468,duration:18,projType:'استراتيجي',status:'قائم'},
+    {id:4,name:'حصر',dep:'F',val:164046,duration:4,projType:'تشغيلي',status:'قائم'},
+    {id:5,name:'احتساب',dep:'F',val:45655,duration:4,projType:'تشغيلي',status:'قائم'},
+    {id:6,name:'تنسيق',dep:'H',val:4847402,duration:24,projType:'استراتيجي',status:'قائم'},
+    {id:7,name:'أنظمة',dep:'G',val:1519767.55,duration:12,projType:'استراتيجي',status:'قائم'}
+  ],
+  tenders:[
+    {id:12,dep:'G',name:'ضمان',type:'استراتيجي',notes:''},
+    {id:13,dep:'G',name:'ادارة',type:'استراتيجي',notes:''},
+    {id:14,dep:'G',name:'حماية',type:'تشغيلي',notes:''},
+    {id:15,dep:'G',name:'الخدمات',type:'تشغيلي',notes:''},
+    {id:16,dep:'H',name:'حوافز',type:'استراتيجي',notes:''}
+  ],
+  payments:[
+    {id:101,dep:'G',proj:'تطوير',num:1,q:'Q4 2025',val:338984,delDate:'2025-10-30',payDate:'2025-11-16',status:'Paid',reason:''},
+    {id:102,dep:'G',proj:'تطوير',num:2,q:'Q1 2026',val:158585,delDate:'2025-12-31',payDate:'2026-02-04',status:'Paid',reason:''},
+    {id:103,dep:'G',proj:'تطوير',num:3,q:'Q2 2026',val:399715,delDate:'2026-04-30',payDate:'2026-06-04',status:'Not Started',reason:''},
+    {id:104,dep:'G',proj:'تطوير',num:4,q:'Q4 2026',val:390400,delDate:'2026-10-29',payDate:'2026-12-03',status:'Not Started',reason:''},
+    {id:105,dep:'G',proj:'تطوير',num:5,q:'Q2 2027',val:264600,delDate:'2027-04-30',payDate:'2027-06-04',status:'Not Started',reason:''},
+    {id:106,dep:'G',proj:'تطوير',num:6,q:'Q4 2027',val:135115,delDate:'2027-09-14',payDate:'2027-10-19',status:'Not Started',reason:''},
+    {id:107,dep:'F',proj:'تدقيق',num:1,q:'Q1 2026',val:1204050,delDate:'2025-12-31',payDate:'2026-02-04',status:'Paid',reason:''},
+    {id:108,dep:'F',proj:'تدقيق',num:2,q:'Q2 2026',val:1204050,delDate:'2026-03-30',payDate:'2026-05-04',status:'Delivered',reason:''},
+    {id:109,dep:'F',proj:'تدقيق',num:3,q:'Q3 2026',val:1204050,delDate:'2026-06-30',payDate:'2026-08-04',status:'Not Started',reason:''},
+    {id:110,dep:'F',proj:'تدقيق',num:4,q:'Q4 2026',val:1454060,delDate:'2026-09-30',payDate:'2026-11-04',status:'Not Started',reason:''},
+    {id:111,dep:'F',proj:'تدقيق',num:5,q:'Q1 2027',val:1204050,delDate:'2026-12-31',payDate:'2027-02-04',status:'Not Started',reason:''},
+    {id:112,dep:'F',proj:'تدقيق',num:6,q:'Q2 2027',val:1204050,delDate:'2027-03-30',payDate:'2027-05-04',status:'Not Started',reason:''},
+    {id:113,dep:'F',proj:'تدقيق',num:7,q:'Q3 2027',val:1204050,delDate:'2027-06-30',payDate:'2027-08-04',status:'Not Started',reason:''},
+    {id:114,dep:'F',proj:'تدقيق',num:8,q:'Q4 2027',val:1204050,delDate:'2027-09-30',payDate:'2027-11-04',status:'Not Started',reason:''},
+    {id:115,dep:'F',proj:'بناء',num:1,q:'Q1 2026',val:4891892,delDate:'2025-12-31',payDate:'2026-02-04',status:'Paid',reason:''},
+    {id:116,dep:'F',proj:'بناء',num:2,q:'Q2 2026',val:4223906,delDate:'2026-03-10',payDate:'2026-04-14',status:'Under Process',reason:''},
+    {id:117,dep:'F',proj:'بناء',num:3,q:'Q3 2026',val:5701874,delDate:'2026-06-10',payDate:'2026-07-15',status:'Not Started',reason:''},
+    {id:118,dep:'F',proj:'بناء',num:4,q:'Q4 2026',val:6481856,delDate:'2026-09-10',payDate:'2026-10-15',status:'Not Started',reason:''},
+    {id:119,dep:'F',proj:'بناء',num:5,q:'Q4 2026',val:1199973,delDate:'2026-11-19',payDate:'2026-12-24',status:'Not Started',reason:''},
+    {id:120,dep:'F',proj:'بناء',num:6,q:'Q2 2027',val:1499967,delDate:'2027-03-31',payDate:'2027-05-05',status:'Not Started',reason:''},
+    {id:121,dep:'F',proj:'حصر',num:1,q:'Q2 2026',val:90235,delDate:'2026-06-30',payDate:'2026-06-30',status:'Not Started',reason:''},
+    {id:122,dep:'F',proj:'احتساب',num:1,q:'Q2 2026',val:20240,delDate:'2026-05-31',payDate:'2026-05-31',status:'Not Started',reason:''},
+    {id:123,dep:'F',proj:'احتساب',num:2,q:'Q1 2027',val:25415,delDate:'2027-03-31',payDate:'2027-03-31',status:'Not Started',reason:''},
+    {id:124,dep:'H',proj:'تنسيق',num:1,q:'Q2 2025',val:1691190,delDate:'2025-03-30',payDate:'2025-04-30',status:'Paid',reason:''},
+    {id:125,dep:'H',proj:'تنسيق',num:2,q:'Q4 2025',val:184276,delDate:'2025-10-30',payDate:'2025-11-30',status:'Paid',reason:''},
+    {id:126,dep:'H',proj:'تنسيق',num:3,q:'Q1 2026',val:1461202,delDate:'2025-12-30',payDate:'2026-02-10',status:'Delivered',reason:'راسل'},
+    {id:127,dep:'H',proj:'تنسيق',num:4,q:'Q4 2026',val:1510734,delDate:'2026-09-01',payDate:'2026-10-13',status:'Not Started',reason:''},
+    {id:128,dep:'G',proj:'تطوير',num:1,q:'Q3 2026',val:181506.8,delDate:'2026-06-30',payDate:'2026-08-04',status:'Not Started',reason:''},
+    {id:129,dep:'G',proj:'تطوير',num:2,q:'Q4 2026',val:55351.8,delDate:'2026-09-30',payDate:'2026-11-04',status:'Not Started',reason:''},
+    {id:130,dep:'G',proj:'تطوير',num:3,q:'Q1 2027',val:873471,delDate:'2026-11-30',payDate:'2027-01-04',status:'Not Started',reason:''},
+    {id:131,dep:'G',proj:'تطوير',num:4,q:'Q1 2027',val:409437.95,delDate:'2027-01-17',payDate:'2027-02-21',status:'Not Started',reason:''}
+  ],
+  tasks:[
+    {id:301,name:'تحديث الخطة المالية',day:'الثلاثاء',desc:'مراجعة الصرف والميزانية لكل محفظة والتحقق من الدفعات'},
+    {id:302,name:'إرسال التقارير الأسبوعية لرعاة المحافظ',day:'الخميس',desc:'محفظة G + محفظة F'}
+  ],
+  meetings:[
+    {id:201,name:'تحديث الخطة مع تركي',freq:'أسبوعي',day:'الثلاثاء',time:'1:00 م',desc:''},
+    {id:202,name:'الخطة المالية',freq:'أسبوعي',day:'الثلاثاء',time:'12:00 م',desc:''},
+    {id:203,name:'الاجتماع الاسبوعي للمكتب',freq:'أسبوعي',day:'الأربعاء',time:'1:30 م',desc:''},
+    {id:204,name:'تحديث الخطة مع سعد',freq:'أسبوعي',day:'الأربعاء',time:'9:30 ص',desc:''},
+    {id:205,name:'تحديث الخطة مع عبدالعزيز',freq:'أسبوعي',day:'الخميس',time:'9:00 ص',desc:''}
+  ],
+  templates:{
+    esc:'الأستاذة /\nتحية طيبة وبعد،\n\nنفيدكم باستمرار التأخر في تسليم المخرجات المطلوبة لمشروع "{مشروع}" وذلك رغم المتابعات والتنبيهات السابقة.\n\nوعليه، نأمل التكرم بالتصعيد علمًا بأن تاريخ تسليم المخرج {تاريخ}.\n\nشكرًا جزيلًا.',
+    del:'الأستاذ /                                     المحترم،\nتحية طيبة وبعد،\nالسلام عليكم ورحمة الله وبركاته،\n\nنود تذكيركم أن استلام المخرجات لمشروع "{مشروع}" من المتوقع أن يتم بتاريخ {تاريخ}، نرجو منكم التكرم بمشاركة المخرجات في الوقت المحدد، وذلك من أجل تمكننا من إجراء المراجعة اللازمة والتنسيق مع الجهات المعنية بكفاءة عالية.\n\nوفي حالة وجود مؤشرات تشير إلى احتمالية تأخير في تسليم المخرج أو وجود إشكاليات تتعلق بجودته، يرجى تزويدنا بوصف واضح للمخاطر، وتحديد الجهة المالكة للمخرج، والمسؤول عن متابعته، بالإضافة إلى شرح خطة المعالجة المقترحة لمعالجته.\n\nونود التنويه إلى أنه في حال استلام المخرجات بعد التواريخ المحددة والمتفق عليها، سيتم تطبيق الغرامات المنصوص عليها في المشاريع الموقعة، دون أي استثناءات.\n\nنأمل منكم التكرم على تسليم المخرجات في الوقت المحدد والموافقة عليه داخليًا  ونشكر لكم تعاونكم المستمر وحرصكم على جودة تنفيذ المشاريع.\n\nوفي حال وجود أي استفسارات أو توضيحات، نرجو عدم التردد في التواصل.\n\nمع خالص التحية والتقدير،',
+    pay:''
+  },
+  nextId:400
+};
+
+var S={}, mOffset=0, saveTimer=null, xlData=null, xlHeaders=[];
+
+function hardReset(){
+  if(!confirm('سيتم مسح كل البيانات والرجوع للبيانات الأصلية. متأكد؟'))return;
+  ['pmo_v8','pmo_v7','pmo_v6','pmo_v5','pmo_v4','pmo_v3'].forEach(function(k){localStorage.removeItem(k);});
+  S=JSON.parse(JSON.stringify(DD));
+  save();
+  renderHome();
+  toast('تمت إعادة التعيين ✓');
+}
+function load(){
+  try{
+    ['pmo_v7','pmo_v6','pmo_v5','pmo_v4','pmo_v3'].forEach(function(k){localStorage.removeItem(k);});
+    var r=localStorage.getItem('pmo_v8');
+    S=r?JSON.parse(r):JSON.parse(JSON.stringify(DD));
+  }catch(e){S=JSON.parse(JSON.stringify(DD));}
+}
+function save(){
+  clearTimeout(saveTimer);
+  document.getElementById('saved-ind').textContent='...';
+  saveTimer=setTimeout(function(){
+    try{localStorage.setItem('pmo_v8',JSON.stringify(S));document.getElementById('saved-ind').textContent='✓ محفوظ';}
+    catch(e){document.getElementById('saved-ind').textContent='⚠ خطأ';}
+  },500);
+}
+function nid(){S.nextId=(S.nextId||400)+1;return S.nextId;}
+
+var T=new Date();T.setHours(0,0,0,0);
+function dd(d){if(!d)return 9999;var x=new Date(d);x.setHours(0,0,0,0);return Math.round((x-T)/86400000);}
+function fd(d){if(!d)return'—';try{return new Date(d).toLocaleDateString('ar-SA-u-nu-latn');}catch(e){return d;}}
+function fn(n){return Number(n).toLocaleString('ar-SA-u-nu-latn');}
+function sm(s){return STATUS_MAP[s]||{l:s,c:'gr'};}
+function tplFn(t,proj,date,num){return t.replace(/{مشروع}/g,proj).replace(/{تاريخ}/g,date).replace(/{دفعة}/g,'الدفعة '+num);}
+function toast(m){var t=document.getElementById('toast');t.textContent=m;t.classList.add('show');setTimeout(function(){t.classList.remove('show');},2500);}
+function closeM(id){document.getElementById(id).classList.remove('open');}
+function openM(id){document.getElementById(id).classList.add('open');}
+
+// ===== INLINE EDIT =====
+function makeCell(val,opts){
+  var d=document.createElement('td');
+  var inner=document.createElement('div');
+  inner.className='cell-inner';
+  inner.textContent=val||'—';
+  d.appendChild(inner);
+  d.title='اضغط للتعديل';
+  d.onclick=function(e){
+    e.stopPropagation();
+    if(d.classList.contains('editing'))return;
+    d.classList.add('editing');inner.textContent='';
+    var inp;
+    if(opts.type==='select'){
+      inp=document.createElement('select');inp.className='cell-edit';
+      (opts.choices||[]).forEach(function(c){
+        var o=document.createElement('option');o.value=c;
+        o.textContent=opts.labels?opts.labels[c]||c:c;
+        if(c===String(val))o.selected=true;
+        inp.appendChild(o);
+      });
+    } else {
+      inp=document.createElement('input');inp.className='cell-edit';
+      inp.type=opts.type||'text';inp.value=val||'';
+    }
+    inner.appendChild(inp);inp.focus();if(inp.select&&opts.type!=='date')inp.select();
+    function commit(){
+      var nv=inp.value;
+      if(opts.type==='number')nv=parseFloat(nv)||0;
+      var rec=(opts.arr||[]).find(function(r){return r.id===opts.recId;});
+      if(rec)rec[opts.field]=nv;
+      save();d.classList.remove('editing');
+      if(opts.type==='number')inner.textContent=fn(nv);
+      else if(opts.type==='select'&&opts.labels)inner.textContent=opts.labels[nv]||nv;
+      else inner.textContent=nv||'—';
+      if(opts.onchange)opts.onchange(nv);
+    }
+    inp.addEventListener('blur',commit);
+    inp.addEventListener('keydown',function(e){if(e.key==='Enter')inp.blur();if(e.key==='Escape'){d.classList.remove('editing');inner.textContent=val||'—';}});
+  };
+  return d;
+}
+
+function delBtn(arr,id,render){
+  var td=document.createElement('td');
+  var b=document.createElement('button');b.className='abtn abtn-r';b.textContent='حذف';
+  b.onclick=function(e){e.stopPropagation();if(!confirm('حذف؟'))return;var i=arr.findIndex(function(r){return r.id===id;});if(i>=0)arr.splice(i,1);save();render();};
+  td.appendChild(b);return td;
+}
+
+// ===== TABS =====
+var TABS=['home','projects','payments','alerts','monthly','financial','meetings','templates','report','sync'];
+function goTab(t){
+  TABS.forEach(function(id){document.getElementById('tab-'+id).classList.toggle('hidden',id!==t);});
+  document.querySelectorAll('.tab').forEach(function(el,i){el.classList.toggle('active',TABS[i]===t);});
+  var r={home:renderHome,projects:renderProjects,payments:renderPayments,alerts:renderAlerts,monthly:renderMonthly,financial:renderFin,meetings:renderMeetings,templates:renderTemplates,report:renderReport};
+  if(r[t])r[t]();
+}
+
+// ===== HOME =====
+function renderHome(){
+  var doneS=['Delivered','Under Process','Paid','راسل','مشروعي'];
+  var nowD=new Date(); var curY=nowD.getFullYear(),curM=nowD.getMonth();
+
+  // مخرجات متأخرة: فات تاريخ التسليم ولم تُختر حالة إيجابية — استراتيجي فقط
+  function isOpexKPI(p){
+    var proj=S.projects.find(function(pr){return pr.dep===p.dep&&p.proj.indexOf(pr.name.substring(0,10))>=0;});
+    if(!proj)proj=S.projects.find(function(pr){return pr.dep===p.dep&&(pr.projType==='تشغيلي');});
+    return proj&&(proj.projType==='تشغيلي');
+  }
+  var delayedDel=S.payments.filter(function(p){return !isOpexKPI(p)&&doneS.indexOf(p.status)<0&&p.delDate&&dd(p.delDate)<0;}).length;
+  // دفعات متأخرة: فات تاريخ الدفعة وليست مدفوعة أو تحت الصرف
+  var delayedPay=S.payments.filter(function(p){return['Paid','Under Process'].indexOf(p.status)<0&&p.payDate&&dd(p.payDate)<0;}).length;
+  // مخرجات قادمة هذا الشهر
+  var upcomingDel=S.payments.filter(function(p){if(!p.delDate)return false;var x=new Date(p.delDate);return doneS.indexOf(p.status)<0&&x.getFullYear()===curY&&x.getMonth()===curM&&dd(p.delDate)>=0;}).length;
+  // دفعات قادمة هذا الشهر
+  var upcomingPay=S.payments.filter(function(p){if(!p.payDate)return false;var x=new Date(p.payDate);return p.status==='Not Started'&&x.getFullYear()===curY&&x.getMonth()===curM&&dd(p.payDate)>=0;}).length;
+
+  document.getElementById('h-p').textContent=S.projects.length;
+  document.getElementById('h-t').textContent=S.tenders.length;
+  document.getElementById('h-delDel').textContent=delayedDel;
+  document.getElementById('h-delPay').textContent=delayedPay;
+  document.getElementById('h-uDel').textContent=upcomingDel;
+  document.getElementById('h-uPay').textContent=upcomingPay;
+
+  // اجتماعات ومهام اليوم فقط
+  var todayIdx=new Date().getDay();
+  var todayAr=DAY_ORDER[todayIdx];
+  var weeklyItems=[];
+  (S.meetings||[]).forEach(function(m){
+    if(m.day===todayAr)weeklyItems.push({time:m.time||'',name:m.name,type:'اجتماع',color:'#0369A1',bg:'#E0F2FE',desc:m.desc||''});
+  });
+  (S.tasks||[]).forEach(function(t){
+    if(t.day===todayAr)weeklyItems.push({time:'',name:t.name,type:'مهمة',color:'#065F46',bg:'#D1FAE5',desc:t.desc||''});
+  });
+  weeklyItems.sort(function(a,b){return (a.time||'').localeCompare(b.time||'');});
+
+  var wh='<div style="background:#fff;border:1px solid #e2e8f0;border-radius:12px;overflow:hidden">';
+  wh+='<div style="padding:7px 14px;background:#0369A1"><span style="font-size:12px;font-weight:700;color:#fff">'+todayAr+' — اليوم</span></div>';
+  if(weeklyItems.length){
+    weeklyItems.forEach(function(item){
+      wh+='<div style="padding:8px 14px;border-top:1px solid #f1f5f9;display:flex;align-items:center;gap:8px">';
+      wh+='<span style="background:'+item.bg+';color:'+item.color+';padding:1px 7px;border-radius:8px;font-size:10px;font-weight:700;flex-shrink:0">'+item.type+'</span>';
+      wh+='<span style="font-size:13px;color:#1e293b;font-weight:500">'+item.name+'</span>';
+      if(item.desc)wh+='<span style="font-size:11px;color:#94a3b8">'+item.desc+'</span>';
+      if(item.time)wh+='<span style="font-size:11px;color:#0369A1;font-weight:700;margin-right:auto">'+item.time+'</span>';
+      wh+='</div>';
+    });
+  } else {
+    wh+='<div style="padding:12px 14px;font-size:13px;color:#64748b">لا توجد اجتماعات أو مهام اليوم</div>';
+  }
+  wh+='</div>';
+  document.getElementById('weekly-summary').innerHTML=wh;
+
+  // تنبيهات اليوم — مخرجات ودفعات متأخرة
+  var ha='';
+  // دالة التحقق من المشاريع التشغيلية
+  function isOpexHome(p){
+    var proj=S.projects.find(function(pr){return pr.dep===p.dep&&p.proj.indexOf(pr.name.substring(0,10))>=0;});
+    if(!proj)proj=S.projects.find(function(pr){return pr.dep===p.dep&&(pr.projType==='تشغيلي');});
+    return proj&&(proj.projType==='تشغيلي');
+  }
+
+  // مخرجات متأخرة — استراتيجي فقط
+  // مخرجات متأخرة — استراتيجي فقط وليس Delivered/راسل/مشروعي
+  var deliveredOrPending=['Delivered','Under Process','Paid','راسل','مشروعي'];
+  S.payments.forEach(function(p){
+    if(!isOpexHome(p)&&deliveredOrPending.indexOf(p.status)<0&&p.delDate&&dd(p.delDate)<0){
+      var daysLate=Math.abs(dd(p.delDate));
+      var color=daysLate>3?'#991B1B':'#92400E';
+      var bg=daysLate>3?'#FFF5F5':'#FFFBEB';
+      ha+='<div class="alert-card" style="border-right:3px solid '+color+';background:'+bg+'"><div class="ai air">📦</div><div style="flex:1"><div class="at">'+p.proj+' — دفعة '+p.num+'</div><div class="ad" style="color:'+color+'">مخرج متأخر '+daysLate+' يوم | '+fd(p.delDate)+'</div><div class="ad">'+p.dep+'</div><button class="abtn" onclick="showEmail(\'esc\',\''+esc(p.proj)+'\','+p.num+',\''+fd(p.delDate)+'\')">إيميل تصعيد ↗</button></div></div>';
+    }
+  });
+  // دفعات متأخرة — تنبيه واحد أحمر لكل الحالات
+  S.payments.forEach(function(p){
+    if(['Paid','Under Process'].indexOf(p.status)<0&&p.payDate&&dd(p.payDate)<0){
+      var daysLate=Math.abs(dd(p.payDate));
+      ha+='<div class="alert-card" style="border-right:3px solid #991B1B;background:#FFF5F5"><div class="ai air">💰</div><div style="flex:1"><div class="at">'+p.proj+' — دفعة '+p.num+'</div><div class="ad" style="color:#991B1B">دفعة متأخرة '+daysLate+' يوم | '+fd(p.payDate)+' | '+p.dep+' | الحالة: '+sm(p.status).l+'</div><button class="abtn" onclick="showEmail(\'esc\',\''+esc(p.proj)+'\','+p.num+',\''+fd(p.payDate)+'\')">إيميل تصعيد ↗</button></div></div>';
+    }
+  });
+  // اجتماعات اليوم
+  var todayName=['الأحد','الاثنين','الثلاثاء','الأربعاء','الخميس','الجمعة','السبت'][new Date().getDay()];
+  (S.meetings||[]).forEach(function(m){
+    if((m.day||'')===todayName||m.freq==='يومي'){
+      var timeStr=m.time?'الساعة '+m.time:'';
+      ha+='<div class="alert-card" style="border-right:3px solid #0369A1;background:#F0F9FF"><div class="ai aib">📅</div><div style="flex:1"><div class="at">'+m.name+'</div><div class="ad">'+todayName+(timeStr?' | '+timeStr:'')+(m.desc?' | '+m.desc:'')+'</div></div></div>';
+    }
+  });
+  if(!ha)ha='<div style="padding:12px;background:#fff;border-radius:10px;border:1px solid #e2e8f0;font-size:13px;color:#64748b">لا توجد تنبيهات عاجلة اليوم ✓</div>';
+  document.getElementById('home-alerts').innerHTML=ha;
+
+  // تذكير إرسال إيميل تسليم المخرج — بناءً على تواريخ التذكير (30/14/3 أيام)
+  var emailReminders=[];
+  var REMINDERS=[{days:21,label:'التذكير الأول'},{days:14,label:'التذكير الثاني'},{days:1,label:'التذكير الثالث'}];
+  S.payments.forEach(function(p){
+    if(!p.delDate||doneS.indexOf(p.status)>=0)return;
+    var delD=new Date(p.delDate);
+    REMINDERS.forEach(function(r){
+      var remD=new Date(delD);remD.setDate(remD.getDate()-r.days);
+      remD.setHours(0,0,0,0);
+      var diff=Math.round((remD-new Date().setHours(0,0,0,0))/86400000);
+      if(diff>=0&&diff<=1){ // اليوم أو الغد
+        emailReminders.push({p:p,label:r.label,days:r.days,remDate:remD,diff:diff});
+      }
+    });
+  });
+  var erHtml='';
+  if(emailReminders.length){
+    emailReminders.forEach(function(item){
+      var isToday=item.diff===0;
+      erHtml+='<div style="display:flex;align-items:center;gap:10px;padding:8px 12px;background:'+(isToday?'#EFF6FF':'#F8FAFC')+';border:1px solid '+(isToday?'#BFDBFE':'#e2e8f0')+';border-radius:9px;margin-bottom:6px">';
+      erHtml+='<span style="background:'+(isToday?'#2563EB':'#64748b')+';color:#fff;padding:2px 8px;border-radius:6px;font-size:11px;font-weight:700;flex-shrink:0">'+(isToday?'اليوم':'الغد')+'</span>';
+      erHtml+='<span style="font-size:12px;color:#1e293b;font-weight:600">'+item.label+' — '+item.p.proj+'</span>';
+      erHtml+='<span style="font-size:11px;color:#64748b;margin-right:auto">قبل '+item.days+' يوم من '+fd(item.p.delDate)+'</span>';
+      erHtml+='<button class="abtn" style="margin:0;padding:3px 9px" onclick="showEmail(\'del\',\''+esc(item.p.proj)+'\','+item.p.num+',\''+fd(item.p.delDate)+'\')">إرسال ↗</button>';
+      erHtml+='</div>';
+    });
+  } else {
+    erHtml='<div style="padding:10px 12px;background:#fff;border-radius:9px;border:1px solid #e2e8f0;font-size:13px;color:#64748b">لا توجد إيميلات تذكير اليوم ✓</div>';
+  }
+  document.getElementById('home-email-reminders').innerHTML=erHtml;
+
+  var dc={'G':'#0369A1','F':'#0EA5E9','H':'#0C447C'},dn={'G':'G','F':'F','H':'H'},sh='';
+  ['G','F','H'].forEach(function(dep){
+    var tot=S.projects.filter(function(p){return p.dep===dep;}).reduce(function(a,p){return a+p.val;},0);
+    var paid=S.payments.filter(function(p){return p.dep===dep&&p.status==='Paid';}).reduce(function(a,p){return a+p.val;},0);
+    var under=S.payments.filter(function(p){return p.dep===dep&&p.status==='Under Process';}).reduce(function(a,p){return a+p.val;},0);
+    var delivered=S.payments.filter(function(p){return p.dep===dep&&p.status==='Delivered';}).reduce(function(a,p){return a+p.val;},0);
+    var delayed=S.payments.filter(function(p){return p.dep===dep&&p.status==='Delayed';}).reduce(function(a,p){return a+p.val;},0);
+    var pct=tot>0?Math.round(paid/tot*100):0;
+    var tn=S.tenders.filter(function(t){return t.dep===dep;}).length;
+    var cnt=S.projects.filter(function(p){return p.dep===dep;}).length;
+    sh+='<div class="card"><div class="card-h" style="border-bottom:1px solid #f1f5f9"><div><div class="card-hn" style="color:'+dc[dep]+'">محفظة '+dn[dep]+'</div><div class="card-hs">'+cnt+' مشروع'+(tn?' | '+tn+' تحت الطرح':'')+'</div></div></div>';
+    sh+='<div style="padding:10px 14px">';
+    sh+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;font-size:11px">';
+    sh+='<div style="padding:6px 8px;background:#F0FDF4;border-radius:7px"><div style="color:#64748b;margin-bottom:2px">مدفوع</div><div style="font-weight:700;color:#065F46">'+fn(paid)+' ﷼</div></div>';
+    sh+='<div style="padding:6px 8px;background:#FEF3C7;border-radius:7px"><div style="color:#64748b;margin-bottom:2px">تحت الصرف</div><div style="font-weight:700;color:#92400E">'+fn(under)+' ﷼</div></div>';
+    if(delivered>0)sh+='<div style="padding:6px 8px;background:#E0F2FE;border-radius:7px"><div style="color:#64748b;margin-bottom:2px">تم التسليم</div><div style="font-weight:700;color:#0369A1">'+fn(delivered)+' ﷼</div></div>';
+    if(delayed>0)sh+='<div style="padding:6px 8px;background:#FEE2E2;border-radius:7px"><div style="color:#64748b;margin-bottom:2px">متأخر</div><div style="font-weight:700;color:#991B1B">'+fn(delayed)+' ﷼</div></div>';
+    sh+='<div style="padding:6px 8px;background:#F8FAFC;border-radius:7px;grid-column:1/-1"><div style="color:#64748b;margin-bottom:2px">إجمالي المشاريع</div><div style="font-weight:700;color:#1e293b">'+fn(tot)+' ﷼</div></div>';
+    sh+='</div></div></div>';
+  });
+  document.getElementById('home-summary').innerHTML=sh;
+
+  // جدول مخرجات هذا الشهر
+  var nowD2=new Date(); var cY=nowD2.getFullYear(),cM=nowD2.getMonth();
+  var mDels=S.payments.filter(function(p){
+    if(!p.delDate)return false;
+    var dv=dd(p.delDate);
+    return dv>=0&&dv<=30;
+  }).sort(function(a,b){return new Date(a.delDate)-new Date(b.delDate)});
+
+  var dtHtml='';
+  if(mDels.length){
+    dtHtml='<div style="overflow-x:auto;border-radius:10px;border:1px solid #e2e8f0"><table style="width:100%;border-collapse:collapse;font-size:12px;background:#fff">';
+    dtHtml+='<thead><tr style="background:#F8FAFC">';
+    dtHtml+='<th style="text-align:right;padding:8px 10px;color:#64748b;font-weight:700;border-bottom:1px solid #e2e8f0">المشروع</th>';
+    dtHtml+='<th style="text-align:right;padding:8px 10px;color:#64748b;font-weight:700;border-bottom:1px solid #e2e8f0">القسم</th>';
+    dtHtml+='<th style="text-align:right;padding:8px 10px;color:#64748b;font-weight:700;border-bottom:1px solid #e2e8f0">#</th>';
+    dtHtml+='<th style="text-align:right;padding:8px 10px;color:#64748b;font-weight:700;border-bottom:1px solid #e2e8f0">تاريخ التسليم</th>';
+    dtHtml+='<th style="text-align:right;padding:8px 10px;color:#5B21B6;font-weight:700;border-bottom:1px solid #e2e8f0">تذكير 1 (قبل 3 أسابيع)</th>';
+    dtHtml+='<th style="text-align:right;padding:8px 10px;color:#0369A1;font-weight:700;border-bottom:1px solid #e2e8f0">تذكير 2 (قبل أسبوعين)</th>';
+    dtHtml+='<th style="text-align:right;padding:8px 10px;color:#92400E;font-weight:700;border-bottom:1px solid #e2e8f0">تذكير 3 (قبل يوم)</th>';
+    dtHtml+='<th style="text-align:right;padding:8px 10px;color:#64748b;font-weight:700;border-bottom:1px solid #e2e8f0">الحالة</th>';
+    dtHtml+='</tr></thead><tbody>';
+    mDels.forEach(function(p){
+      var s=sm(p.status);
+      var dv=dd(p.delDate);
+      var delD=new Date(p.delDate);
+      // حساب تواريخ التذكير
+      function reminderDate(daysBeforeDelivery){
+        var d=new Date(delD);d.setDate(d.getDate()-daysBeforeDelivery);return d;
+      }
+      function fmtReminder(d){return d.toLocaleDateString('ar-SA-u-nu-latn');}
+      var r1=reminderDate(21); var r2=reminderDate(14); var r3=reminderDate(1);
+      var today2=new Date();today2.setHours(0,0,0,0);
+      function reminderStyle(rDate){
+        var diff=Math.round((rDate-today2)/86400000);
+        if(diff<0)return 'background:#F1F5F9;color:#94a3b8;padding:2px 7px;border-radius:5px;font-weight:500;text-decoration:line-through'; // مضى
+        if(diff===0)return 'background:#FEF3C7;color:#92400E;padding:2px 7px;border-radius:5px;font-weight:700'; // اليوم
+        if(diff<=3)return 'background:#FEE2E2;color:#991B1B;padding:2px 7px;border-radius:5px;font-weight:700'; // قريب جداً
+        return 'background:#EDE9FE;color:#5B21B6;padding:2px 7px;border-radius:5px;font-weight:500';
+      }
+      var dateColor=dv<0?'#991B1B':dv<=3?'#92400E':'#1e293b';
+      var dateBg=dv<0?'#FEE2E2':dv<=3?'#FEF9C3':'transparent';
+      dtHtml+='<tr style="border-bottom:1px solid #f1f5f9">';
+      dtHtml+='<td style="padding:8px 10px;color:#1e293b">'+p.proj+'</td>';
+      dtHtml+='<td style="padding:8px 10px"><span class="bdg s">'+p.dep+'</span></td>';
+      dtHtml+='<td style="padding:8px 10px;text-align:center">'+p.num+'</td>';
+      dtHtml+='<td style="padding:8px 10px"><span style="background:'+dateBg+';color:'+dateColor+';padding:2px 7px;border-radius:5px;font-weight:700">'+fd(p.delDate)+'</span></td>';
+      dtHtml+='<td style="padding:8px 10px"><span style="'+reminderStyle(r1)+'">'+fmtReminder(r1)+'</span></td>';
+      dtHtml+='<td style="padding:8px 10px"><span style="'+reminderStyle(r2)+'">'+fmtReminder(r2)+'</span></td>';
+      dtHtml+='<td style="padding:8px 10px"><span style="'+reminderStyle(r3)+'">'+fmtReminder(r3)+'</span></td>';
+      dtHtml+='<td style="padding:8px 10px"><span class="bdg '+s.c+'">'+s.l+'</span></td>';
+      dtHtml+='</tr>';
+    });
+    dtHtml+='</tbody></table></div>';
+    dtHtml+='<div style="font-size:11px;color:#64748b;margin-top:6px;padding:0 4px">التواريخ المشطوبة = مضت | الأصفر = اليوم | الأحمر = قريب جداً</div>';
+  } else {
+    dtHtml='<div style="padding:10px 14px;background:#fff;border-radius:10px;border:1px solid #e2e8f0;font-size:13px;color:#64748b">لا توجد مخرجات مستحقة هذا الشهر</div>';
+  }
+  document.getElementById('home-del-table').innerHTML=dtHtml;
+
+  // جدول دفعات هذا الشهر + المتأخرة
+  var mPays=S.payments.filter(function(p){
+    if(!p.payDate)return false;
+    var x=new Date(p.payDate);
+    return x.getFullYear()===cY&&x.getMonth()===cM;
+  }).sort(function(a,b){return new Date(a.payDate)-new Date(b.payDate);});
+
+  var latePays=S.payments.filter(function(p){
+    if(!p.payDate)return false;
+    var x=new Date(p.payDate);
+    var isPaidOrProcess=['Paid','Under Process'].indexOf(p.status)>=0;
+    return !isPaidOrProcess&&dd(p.payDate)<0&&!(x.getFullYear()===cY&&x.getMonth()===cM);
+  }).sort(function(a,b){return new Date(a.payDate)-new Date(b.payDate);});
+
+  var ptHtml='';
+  if(mPays.length||latePays.length){
+    ptHtml='<div style="overflow-x:auto;border-radius:10px;border:1px solid #e2e8f0"><table style="width:100%;border-collapse:collapse;font-size:12px;background:#fff">';
+    ptHtml+='<thead><tr style="background:#F8FAFC"><th style="text-align:right;padding:8px 10px;color:#64748b;font-weight:700;border-bottom:1px solid #e2e8f0">المشروع</th><th style="text-align:right;padding:8px 10px;color:#64748b;font-weight:700;border-bottom:1px solid #e2e8f0">القسم</th><th style="text-align:right;padding:8px 10px;color:#64748b;font-weight:700;border-bottom:1px solid #e2e8f0">#</th><th style="text-align:right;padding:8px 10px;color:#64748b;font-weight:700;border-bottom:1px solid #e2e8f0">القيمة</th><th style="text-align:right;padding:8px 10px;color:#64748b;font-weight:700;border-bottom:1px solid #e2e8f0">تاريخ الدفعة</th><th style="text-align:right;padding:8px 10px;color:#64748b;font-weight:700;border-bottom:1px solid #e2e8f0">الحالة</th></tr></thead><tbody>';
+
+    mPays.forEach(function(p){
+      var s=sm(p.status);
+      var pv=dd(p.payDate);
+      var dateColor=pv<0&&['Paid','Under Process'].indexOf(p.status)<0?'#991B1B':'#1e293b';
+      var dateBg=pv<0&&['Paid','Under Process'].indexOf(p.status)<0?'#FEE2E2':'transparent';
+      ptHtml+='<tr style="border-bottom:1px solid #f1f5f9">';
+      ptHtml+='<td style="padding:8px 10px;color:#1e293b">'+p.proj+'</td>';
+      ptHtml+='<td style="padding:8px 10px"><span class="bdg s">'+p.dep+'</span></td>';
+      ptHtml+='<td style="padding:8px 10px;text-align:center">'+p.num+'</td>';
+      ptHtml+='<td style="padding:8px 10px">'+fn(p.val)+' ﷼</td>';
+      ptHtml+='<td style="padding:8px 10px"><span style="background:'+dateBg+';color:'+dateColor+';padding:2px 7px;border-radius:5px;font-weight:700">'+fd(p.payDate)+'</span></td>';
+      ptHtml+='<td style="padding:8px 10px"><span class="bdg '+s.c+'">'+s.l+'</span></td>';
+      ptHtml+='</tr>';
+    });
+
+    if(latePays.length){
+      ptHtml+='<tr><td colspan="6" style="padding:6px 10px;background:#FFF5F5;font-size:11px;font-weight:700;color:#991B1B;border-top:2px solid #FCA5A5">دفعات متأخرة من أشهر سابقة</td></tr>';
+      latePays.forEach(function(p){
+        var daysLate=Math.abs(dd(p.payDate));
+        ptHtml+='<tr style="border-bottom:1px solid #f1f5f9;background:#FFF5F5">';
+        ptHtml+='<td style="padding:8px 10px;color:#1e293b">'+p.proj+'</td>';
+        ptHtml+='<td style="padding:8px 10px"><span class="bdg s">'+p.dep+'</span></td>';
+        ptHtml+='<td style="padding:8px 10px;text-align:center">'+p.num+'</td>';
+        ptHtml+='<td style="padding:8px 10px">'+fn(p.val)+' ﷼</td>';
+        ptHtml+='<td style="padding:8px 10px"><span style="background:#FEE2E2;color:#991B1B;padding:2px 7px;border-radius:5px;font-weight:700">'+fd(p.payDate)+' — متأخرة '+daysLate+' يوم</span></td>';
+        ptHtml+='<td style="padding:8px 10px"><span class="bdg r">متأخرة</span></td>';
+        ptHtml+='</tr>';
+      });
+    }
+
+    ptHtml+='</tbody></table></div>';
+  } else {
+    ptHtml='<div style="padding:10px 14px;background:#fff;border-radius:10px;border:1px solid #e2e8f0;font-size:13px;color:#64748b">لا توجد دفعات مستحقة هذا الشهر</div>';
+  }
+  document.getElementById('home-pay-table').innerHTML=ptHtml;
+}
+
+// ===== TASKS =====
+function openEditTask(id){
+  var t=(S.tasks||[]).find(function(x){return x.id===id;});
+  if(!t)return;
+  document.getElementById('task-modal-title').textContent='تعديل المهمة';
+  document.getElementById('tm-name').value=t.name;
+  document.getElementById('tm-day').value=t.day;
+  document.getElementById('tm-desc').value=t.desc||'';
+  document.getElementById('tm-id').value=id;
+  openM('task-modal');
+}
+function addTask(){
+  document.getElementById('task-modal-title').textContent='إضافة مهمة أسبوعية';
+  document.getElementById('tm-name').value='';
+  document.getElementById('tm-day').value='الأحد';
+  document.getElementById('tm-desc').value='';
+  document.getElementById('tm-id').value='';
+  openM('task-modal');
+}
+function saveTask(){
+  var id=document.getElementById('tm-id').value;
+  var obj={id:id?parseInt(id):nid(),name:document.getElementById('tm-name').value,day:document.getElementById('tm-day').value,desc:document.getElementById('tm-desc').value};
+  if(!obj.name){toast('يرجى إدخال اسم المهمة');return;}
+  if(!S.tasks)S.tasks=[];
+  if(id){var i=S.tasks.findIndex(function(x){return x.id===parseInt(id);});if(i>=0)S.tasks[i]=obj;else S.tasks.push(obj);}
+  else S.tasks.push(obj);
+  save();closeM('task-modal');
+  renderHome();
+  var ttb=document.getElementById('task-tbody');if(ttb)renderMeetings();
+  toast('تم الحفظ ✓');
+}
+function deleteTask(id){
+  if(!confirm('حذف هذه المهمة؟'))return;
+  S.tasks=(S.tasks||[]).filter(function(t){return t.id!==id;});
+  save();
+  renderHome();
+  var ttb=document.getElementById('task-tbody');if(ttb)renderMeetings();
+  toast('تم الحذف');
+}
+
+// ===== PROJECTS =====
+function renderProjects(){
+  var tb=document.getElementById('proj-tbody');tb.innerHTML='';
+  S.projects.forEach(function(p){
+    var tr=document.createElement('tr');
+    tr.appendChild(makeCell(p.name,{type:'text',field:'name',recId:p.id,arr:S.projects}));
+    tr.appendChild(makeCell(p.dep,{type:'select',choices:['G','F','H'],field:'dep',recId:p.id,arr:S.projects}));
+    tr.appendChild(makeCell(fn(p.val),{type:'number',field:'val',recId:p.id,arr:S.projects}));
+    tr.appendChild(makeCell(p.duration||'',{type:'number',field:'duration',recId:p.id,arr:S.projects}));
+    tr.appendChild(makeCell(p.projType||'استراتيجي',{type:'select',choices:['استراتيجي','تشغيلي'],field:'projType',recId:p.id,arr:S.projects}));
+    tr.appendChild(makeCell(p.status,{type:'select',choices:['قائم','منتهي','متوقف'],field:'status',recId:p.id,arr:S.projects}));
+    tr.appendChild(delBtn(S.projects,p.id,renderProjects));
+    tb.appendChild(tr);
+  });
+  var ttb=document.getElementById('tender-tbody');ttb.innerHTML='';
+  S.tenders.forEach(function(t){
+    var tr=document.createElement('tr');
+    tr.appendChild(makeCell(t.name,{type:'text',field:'name',recId:t.id,arr:S.tenders}));
+    tr.appendChild(makeCell(t.dep,{type:'select',choices:['G','F','H'],field:'dep',recId:t.id,arr:S.tenders}));
+    tr.appendChild(makeCell(t.type,{type:'select',choices:['استراتيجي','تشغيلي'],field:'type',recId:t.id,arr:S.tenders}));
+    tr.appendChild(makeCell(t.notes||'',{type:'text',field:'notes',recId:t.id,arr:S.tenders}));
+    tr.appendChild(delBtn(S.tenders,t.id,renderProjects));
+    ttb.appendChild(tr);
+  });
+}
+function addProject(){S.projects.push({id:nid(),name:'مشروع جديد',dep:'G',val:0,duration:12,projType:'استراتيجي',status:'قائم'});save();renderProjects();toast('تمت الإضافة — اضغط لتعديل البيانات');}
+function addTender(){S.tenders.push({id:nid(),dep:'G',name:'مشروع جديد',type:'استراتيجي',notes:''});save();renderProjects();toast('تمت الإضافة');}
+
+// ===== PAYMENTS =====
+var statusLabels={};
+STATUS_OPTS.forEach(function(k){statusLabels[k]=STATUS_MAP[k]?STATUS_MAP[k].l:k;});
+
+function renderPayments(){
+  var dep=document.getElementById('f-dep').value;
+  var st=document.getElementById('f-st').value;
+  var f=S.payments.filter(function(p){return(!dep||p.dep===dep)&&(!st||p.status===st);});
+  var tb=document.getElementById('pay-tbody');tb.innerHTML='';
+  f.forEach(function(p){
+    var tr=document.createElement('tr');
+    var projChoices=S.projects.map(function(pr){return pr.name;});
+    tr.appendChild(makeCell(p.proj,{type:'select',choices:projChoices,field:'proj',recId:p.id,arr:S.payments,onchange:function(val){
+      // ربط القسم تلقائياً عند اختيار المشروع
+      var pr=S.projects.find(function(x){return x.name===val;});
+      if(pr){var rec=S.payments.find(function(x){return x.id===p.id;});if(rec)rec.dep=pr.dep;save();renderPayments();}
+    }}));
+    tr.appendChild(makeCell(p.dep,{type:'select',choices:['G','F','H'],field:'dep',recId:p.id,arr:S.payments}));
+    tr.appendChild(makeCell(p.num,{type:'number',field:'num',recId:p.id,arr:S.payments}));
+    tr.appendChild(makeCell(p.q,{type:'text',field:'q',recId:p.id,arr:S.payments}));
+    tr.appendChild(makeCell(fn(p.val),{type:'number',field:'val',recId:p.id,arr:S.payments}));
+    // تاريخ تسليم المخرج مع تلوين ذكي
+    var delTd=makeCell(p.delDate,{type:'date',field:'delDate',recId:p.id,arr:S.payments});
+    var deliveredStatuses=['Delivered','Under Process','Paid','راسل','مشروعي'];
+    var delDiff=dd(p.delDate);
+    var delInner=delTd.querySelector('.cell-inner');
+    if(deliveredStatuses.indexOf(p.status)>=0){
+      // اتسلم — أخضر بغض النظر عن التاريخ
+      delInner.style.color='#065F46';delInner.style.fontWeight='600';
+      delTd.style.background='#F0FDF4';
+    } else if(delDiff<-3){
+      // فات أكثر من 3 أيام ولم يُسلَّم — أحمر
+      delInner.style.color='#991B1B';delInner.style.fontWeight='700';
+      delTd.style.background='#FEE2E2';
+    } else if(delDiff<=0&&delDiff>=-3){
+      // فات 1-3 أيام — أصفر
+      delInner.style.color='#92400E';delInner.style.fontWeight='700';
+      delTd.style.background='#FEF9C3';
+    }
+    tr.appendChild(delTd);
+    // تاريخ الدفعة مع تلوين ذكي
+    var payTd=makeCell(p.payDate,{type:'date',field:'payDate',recId:p.id,arr:S.payments});
+    var payDiff=dd(p.payDate);
+    var payInner=payTd.querySelector('.cell-inner');
+    var trulyPaid=['Paid','Under Process'];
+    var pendingOk=['راسل','مشروعي']; // أخضر لو ما حان الموعد
+    if(trulyPaid.indexOf(p.status)>=0){
+      // مدفوعة أو تحت الصرف — أخضر دائماً
+      payInner.style.color='#065F46';payInner.style.fontWeight='600';
+      payTd.style.background='#F0FDF4';
+    } else if(pendingOk.indexOf(p.status)>=0&&payDiff>=0){
+      // راسل أو مشروعي ولم يحن الموعد — أخضر
+      payInner.style.color='#065F46';payInner.style.fontWeight='600';
+      payTd.style.background='#F0FDF4';
+    } else if(payDiff<0){
+      // فات الموعد بأي حالة أخرى — أحمر
+      payInner.style.color='#991B1B';payInner.style.fontWeight='700';
+      payTd.style.background='#FEE2E2';
+    }
+    tr.appendChild(payTd);
+    // Status — smart: if Delivered, can't be Delayed
+    var stTd=makeCell(sm(p.status).l,{type:'select',choices:STATUS_OPTS,labels:statusLabels,field:'status',recId:p.id,arr:S.payments});
+    tr.appendChild(stTd);
+    tr.appendChild(makeCell(p.reason||'',{type:'text',field:'reason',recId:p.id,arr:S.payments}));
+    var atd=document.createElement('td');
+    var dv=dd(p.delDate);
+    if(p.status==='Delayed'){var b=document.createElement('button');b.className='abtn';b.textContent='تصعيد';b.onclick=function(e){e.stopPropagation();showEmail('esc',p.proj,p.num,fd(p.payDate));};atd.appendChild(b);}
+    if(p.status==='Not Started'&&dv>=0&&dv<=21){var b2=document.createElement('button');b2.className='abtn';b2.textContent='تذكير مخرج';b2.onclick=function(e){e.stopPropagation();showEmail('del',p.proj,p.num,fd(p.delDate));};atd.appendChild(b2);}
+    var db=document.createElement('button');db.className='abtn abtn-r';db.textContent='حذف';db.onclick=function(e){e.stopPropagation();if(!confirm('حذف؟'))return;var i=S.payments.findIndex(function(x){return x.id===p.id;});if(i>=0)S.payments.splice(i,1);save();renderPayments();};atd.appendChild(db);
+    tr.appendChild(atd);
+    tb.appendChild(tr);
+  });
+}
+function addPayment(){
+  var firstProj=S.projects.length?S.projects[0].name:'مشروع جديد';
+  var firstDep=S.projects.length?S.projects[0].dep:'G';
+  S.payments.push({id:nid(),dep:firstDep,proj:firstProj,num:1,q:'Q1 2026',val:0,delDate:'',payDate:'',status:'Not Started',reason:''});
+  save();renderPayments();toast('تمت الإضافة — اختر المشروع من القائمة');
+}
+
+// ===== ALERTS =====
+function renderAlerts(){
+  var doneS=['Delivered','Under Process','Paid'];
+
+  // دالة للتحقق إذا الدفعة تابعة لمشروع تشغيلي
+  function isOpex(p){
+    var proj=S.projects.find(function(pr){return pr.dep===p.dep&&p.proj.indexOf(pr.name.substring(0,10))>=0;});
+    if(!proj)proj=S.projects.find(function(pr){return pr.dep===p.dep&&(pr.projType==='تشغيلي');});
+    return proj&&(proj.projType==='تشغيلي');
+  }
+
+  // مخرجات تأخرت أكثر من 3 أيام — استراتيجي فقط
+  var escAlerts=S.payments.filter(function(p){return !isOpex(p)&&doneS.indexOf(p.status)<0&&p.delDate&&dd(p.delDate)<-3;});
+  // مخرجات تأخرت 0-3 أيام — استراتيجي فقط
+  var warnAlerts=S.payments.filter(function(p){return !isOpex(p)&&doneS.indexOf(p.status)<0&&p.delDate&&dd(p.delDate)<=0&&dd(p.delDate)>=-3;});
+  // تحت الصرف
+  var under=S.payments.filter(function(p){return p.status==='Under Process';});
+  // تم التسليم — استراتيجي فقط
+  var delivered=S.payments.filter(function(p){return !isOpex(p)&&p.status==='Delivered';});
+  // تذكير مخرج قادم — استراتيجي فقط
+  var delRem=S.payments.filter(function(p){var dv=dd(p.delDate);return !isOpex(p)&&p.status==='Not Started'&&dv>=1&&dv<=21;});
+  // تذكير دفعة قادمة — كل المشاريع
+  var payRem=S.payments.filter(function(p){var pv=dd(p.payDate);return p.status==='Not Started'&&pv>=1&&pv<=21;});
+  // دفعات تشغيلية متأخرة
+  var opexLate=S.payments.filter(function(p){return isOpex(p)&&['Paid','Under Process'].indexOf(p.status)<0&&p.payDate&&dd(p.payDate)<0;});
+
+  var h='';
+
+  // تصعيد — أكثر من 3 أيام
+  if(escAlerts.length){
+    h+='<div class="sec" style="color:#991B1B">تصعيد — عند مرور أكثر من 3 أيام على موعد التسليم</div>';
+    escAlerts.forEach(function(p){
+      var daysLate=Math.abs(dd(p.delDate));
+      h+='<div class="alert-card" style="border-right:3px solid #991B1B;background:#FFF5F5">';
+      h+='<div class="ai air">⚠</div>';
+      h+='<div style="flex:1">';
+      h+='<div class="at">'+p.proj+' — دفعة '+p.num+'</div>';
+      h+='<div class="ad" style="margin-top:4px"><span style="background:#FEE2E2;color:#991B1B;padding:2px 8px;border-radius:6px;font-size:11px;font-weight:700">📅 تاريخ استلام المخرج: '+fd(p.delDate)+'</span></div>';
+      h+='<div class="ad" style="margin-top:4px">المحفظة: <strong>'+p.dep+'</strong> | تأخر <strong>'+daysLate+' يوم</strong></div>';
+      if(p.reason)h+='<div class="reason-badge" style="margin-top:4px">'+p.reason+'</div>';
+      h+='<button class="abtn" onclick="showEmail(\'esc\',\''+esc(p.proj)+'\','+p.num+',\''+fd(p.delDate)+'\')">إيميل تصعيد ↗</button>';
+      h+='</div></div>';
+    });
+  }
+
+  // تحذير — 1 إلى 3 أيام
+  if(warnAlerts.length){
+    h+='<div class="sec" style="margin-top:12px;color:#92400E">تحذير — حان موعد التسليم ولم يُستلم بعد</div>';
+    warnAlerts.forEach(function(p){
+      var daysLate=Math.abs(dd(p.delDate));
+      h+='<div class="alert-card" style="border-right:3px solid #EF9F27;background:#FFFBEB">';
+      h+='<div class="ai aia">!</div>';
+      h+='<div style="flex:1">';
+      h+='<div class="at">'+p.proj+' — دفعة '+p.num+'</div>';
+      h+='<div class="ad" style="margin-top:4px"><span style="background:#FEF3C7;color:#92400E;padding:2px 8px;border-radius:6px;font-size:11px;font-weight:700">📅 تاريخ استلام المخرج: '+fd(p.delDate)+'</span></div>';
+      h+='<div class="ad" style="margin-top:4px">المحفظة: <strong>'+p.dep+'</strong>'+(daysLate>0?' | تأخر <strong>'+daysLate+' يوم</strong>':' | اليوم آخر يوم')+'</div>';
+      h+='<button class="abtn" onclick="showEmail(\'del\',\''+esc(p.proj)+'\','+p.num+',\''+fd(p.delDate)+'\')">إيميل تذكير ↗</button>';
+      h+='</div></div>';
+    });
+  }
+
+  // تم التسليم — بانتظار الصرف (فقط لو ما فات موعد الدفعة)
+  if(delivered.length){
+    var deliveredWaiting=delivered.filter(function(p){return !p.payDate||dd(p.payDate)>=0;});
+    if(deliveredWaiting.length){
+      h+='<div class="sec" style="margin-top:12px;color:#065F46">تم تسليم المخرجات — بانتظار الصرف</div>';
+      deliveredWaiting.forEach(function(p){
+        h+='<div class="alert-card" style="border-right:3px solid #059669">';
+        h+='<div class="ai" style="background:#D1FAE5">✓</div>';
+        h+='<div style="flex:1">';
+        h+='<div class="at">'+p.proj+' — دفعة '+p.num+'</div>';
+        h+='<div class="ad" style="margin-top:4px"><span style="background:#D1FAE5;color:#065F46;padding:2px 8px;border-radius:6px;font-size:11px;font-weight:700">📅 تاريخ الدفعة: '+fd(p.payDate)+'</span></div>';
+        h+='<div class="ad" style="margin-top:4px">المحفظة: <strong>'+p.dep+'</strong> | في انتظار معالجة الدفعة</div>';
+        h+='</div></div>';
+      });
+    }
+  }
+
+  // تحت الصرف
+  if(under.length){
+    h+='<div class="sec" style="margin-top:12px;color:#92400E">تحت الصرف</div>';
+    under.forEach(function(p){
+      h+='<div class="alert-card" style="border-right:3px solid #EF9F27">';
+      h+='<div class="ai aia">↻</div>';
+      h+='<div style="flex:1">';
+      h+='<div class="at">'+p.proj+' — دفعة '+p.num+'</div>';
+      h+='<div class="ad" style="margin-top:4px"><span style="background:#FEF3C7;color:#92400E;padding:2px 8px;border-radius:6px;font-size:11px;font-weight:700">📅 تاريخ الدفعة: '+fd(p.payDate)+'</span></div>';
+      h+='<div class="ad" style="margin-top:4px">المحفظة: <strong>'+p.dep+'</strong> | قيد المعالجة</div>';
+      h+='</div></div>';
+    });
+  }
+
+  // تذكير مخرج قادم
+  if(delRem.length){
+    h+='<div class="sec" style="margin-top:12px;color:#0369A1">تذكير — موعد تسليم المخرج قادم</div>';
+    delRem.forEach(function(p){
+      h+='<div class="alert-card" style="border-right:3px solid #0EA5E9">';
+      h+='<div class="ai aib">📦</div>';
+      h+='<div style="flex:1">';
+      h+='<div class="at">'+p.proj+' — دفعة '+p.num+'</div>';
+      h+='<div class="ad" style="margin-top:4px"><span style="background:#E0F2FE;color:#0369A1;padding:2px 8px;border-radius:6px;font-size:11px;font-weight:700">📅 تاريخ استلام المخرج: '+fd(p.delDate)+'</span></div>';
+      h+='<div class="ad" style="margin-top:4px">المحفظة: <strong>'+p.dep+'</strong> | خلال <strong>'+dd(p.delDate)+' يوم</strong></div>';
+      h+='<button class="abtn" onclick="showEmail(\'del\',\''+esc(p.proj)+'\','+p.num+',\''+fd(p.delDate)+'\')">إيميل تذكير مخرج ↗</button>';
+      h+='</div></div>';
+    });
+  }
+
+  // تذكير دفعة قادمة
+  if(payRem.length){
+    h+='<div class="sec" style="margin-top:12px;color:#5B21B6">تذكير — موعد الدفعة قادم</div>';
+    payRem.forEach(function(p){
+      h+='<div class="alert-card" style="border-right:3px solid #5B21B6">';
+      h+='<div class="ai" style="background:#EDE9FE">💰</div>';
+      h+='<div style="flex:1">';
+      h+='<div class="at">'+p.proj+' — دفعة '+p.num+'</div>';
+      h+='<div class="ad" style="margin-top:4px"><span style="background:#EDE9FE;color:#5B21B6;padding:2px 8px;border-radius:6px;font-size:11px;font-weight:700">📅 تاريخ الدفعة: '+fd(p.payDate)+'</span></div>';
+      h+='<div class="ad" style="margin-top:4px">المحفظة: <strong>'+p.dep+'</strong> | خلال <strong>'+dd(p.payDate)+' يوم</strong></div>';
+      h+='<button class="abtn" onclick="showEmail(\'pay\',\''+esc(p.proj)+'\','+p.num+',\''+fd(p.payDate)+'\')">إيميل تذكير دفعة ↗</button>';
+      h+='</div></div>';
+    });
+  }
+
+  // دفعات متأخرة — تنبيه واحد بتصعيد
+  var payOverdue=S.payments.filter(function(p){
+    if(!p.payDate||dd(p.payDate)>=0)return false;
+    return['Paid','Under Process'].indexOf(p.status)<0;
+  });
+  if(payOverdue.length){
+    h+='<div class="sec" style="margin-top:12px;color:#991B1B">دفعات متأخرة — تحتاج تصعيد</div>';
+    payOverdue.forEach(function(p){
+      var daysLate=Math.abs(dd(p.payDate));
+      var statusLabel=sm(p.status).l;
+      h+='<div class="alert-card" style="border-right:3px solid #991B1B;background:#FFF5F5">';
+      h+='<div class="ai air">💰</div>';
+      h+='<div style="flex:1">';
+      h+='<div class="at">'+p.proj+' — دفعة '+p.num+'</div>';
+      h+='<div class="ad" style="margin-top:4px"><span style="background:#FEE2E2;color:#991B1B;padding:2px 8px;border-radius:6px;font-size:11px;font-weight:700">📅 تاريخ الدفعة: '+fd(p.payDate)+'</span></div>';
+      h+='<div class="ad" style="color:#991B1B;margin-top:4px">الحالة: <strong>'+statusLabel+'</strong> | المحفظة: <strong>'+p.dep+'</strong> | متأخرة <strong>'+daysLate+' يوم</strong></div>';
+      if(p.reason)h+='<div class="reason-badge" style="margin-top:4px">'+p.reason+'</div>';
+      h+='<button class="abtn" onclick="showEmail(\'esc\',\''+esc(p.proj)+'\','+p.num+',\''+fd(p.payDate)+'\')">إيميل تصعيد ↗</button>';
+      h+='</div></div>';
+    });
+  }
+
+  if(!h)h='<div style="padding:16px;background:#fff;border-radius:12px;border:1px solid #e2e8f0;text-align:center;font-size:13px;color:#64748b">لا توجد تنبيهات نشطة ✓</div>';
+  document.getElementById('alerts-list').innerHTML=h;
+}
+
+// ===== MONTHLY =====
+function renderMonthly(){
+  var d=new Date(T.getFullYear(),T.getMonth()+mOffset,1);
+  var y=d.getFullYear(),m=d.getMonth();
+  var months=['يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر'];
+  document.getElementById('mlbl').textContent=months[m]+' '+y;
+  var mD=S.payments.filter(function(p){var x=new Date(p.delDate);return x.getFullYear()===y&&x.getMonth()===m;});
+  var mP=S.payments.filter(function(p){var x=new Date(p.payDate);return x.getFullYear()===y&&x.getMonth()===m;});
+  var h='';
+  if(mD.length){
+    h+='<div class="sec">تسليم المخرجات</div>';
+    mD.forEach(function(p){var s=sm(p.status);h+='<div class="alert-card"><div class="ai aib">📦</div><div style="flex:1"><div class="at">'+p.proj+' — دفعة '+p.num+'</div><div class="ad">'+fd(p.delDate)+'</div><div style="margin-top:3px"><span class="bdg '+s.c+'">'+s.l+'</span></div></div></div>';});
+  }
+  if(mP.length){
+    h+='<div class="sec" style="margin-top:12px">الدفعات المستحقة</div>';
+    mP.forEach(function(p){var s=sm(p.status);h+='<div class="alert-card"><div class="ai" style="background:#EDE9FE">💰</div><div style="flex:1"><div class="at">'+p.proj+' — دفعة '+p.num+'</div><div class="ad">'+fd(p.payDate)+' | '+fn(p.val)+' ريال</div><div style="margin-top:3px"><span class="bdg '+s.c+'">'+s.l+'</span></div></div></div>';});
+  }
+  if(!mD.length&&!mP.length)h='<div style="padding:20px;background:#fff;border-radius:12px;border:1px solid #e2e8f0;text-align:center;font-size:13px;color:#64748b">لا توجد استحقاقات هذا الشهر</div>';
+  document.getElementById('monthly-content').innerHTML=h;
+}
+function chM(n){mOffset+=n;renderMonthly();}
+
+// ===== FINANCIAL (fixed) =====
+function renderFin(){
+  var dn={'G':'G','F':'F','H':'H'};
+  var h='';
+  ['G','F','H'].forEach(function(dep){
+    h+='<div class="sec">'+dn[dep]+'</div>';
+    var projs=S.projects.filter(function(p){return p.dep===dep;});
+    projs.forEach(function(proj){
+      // Filter payments for this specific project
+      var pays=S.payments.filter(function(p){
+        return p.dep===dep && p.proj.indexOf(proj.name.substring(0,10))>=0;
+      });
+      if(!pays.length) pays=S.payments.filter(function(p){return p.dep===dep;});
+      var paid=pays.filter(function(p){return p.status==='Paid';}).reduce(function(a,p){return a+p.val;},0);
+      var under=pays.filter(function(p){return p.status==='Under Process';}).reduce(function(a,p){return a+p.val;},0);
+      var dlvd=pays.filter(function(p){return p.status==='Delivered';}).reduce(function(a,p){return a+p.val;},0);
+      var delayed=pays.filter(function(p){return p.status==='Delayed';}).reduce(function(a,p){return a+p.val;},0);
+      var ns=pays.filter(function(p){return p.status==='Not Started';}).reduce(function(a,p){return a+p.val;},0);
+      var totalPays=pays.reduce(function(a,p){return a+p.val;},0);
+      var pct=proj.val>0?Math.round(paid/proj.val*100):0;
+      h+='<div class="fc"><div style="font-size:13px;font-weight:700;margin-bottom:9px">'+proj.name+'</div>';
+      h+='<div class="fr"><span style="color:#64748b">القيمة الكلية للعقد</span><span>'+fn(proj.val)+' ريال</span></div>';
+      if(paid)h+='<div class="fr"><span style="color:#065F46">✓ مدفوع</span><span style="color:#065F46">'+fn(paid)+' ريال</span></div>';
+      if(dlvd)h+='<div class="fr"><span style="color:#0369A1">تم تسليم المخرجات</span><span style="color:#0369A1">'+fn(dlvd)+' ريال</span></div>';
+      if(under)h+='<div class="fr"><span style="color:#92400E">↻ تحت الصرف</span><span style="color:#92400E">'+fn(under)+' ريال</span></div>';
+      if(delayed)h+='<div class="fr"><span style="color:#991B1B">⚠ لم يتم التسليم — متأخر</span><span style="color:#991B1B">'+fn(delayed)+' ريال</span></div>';
+      if(ns)h+='<div class="fr"><span style="color:#64748b">لم تبدأ</span><span>'+fn(ns)+' ريال</span></div>';
+      h+='<div class="fr"><span>نسبة الإنجاز المالي (المدفوع فقط)</span><span style="color:#0369A1">'+pct+'%</span></div>';
+      h+='<div class="pb" style="margin-top:8px"><div class="pf" style="width:'+Math.max(pct,1)+'%"></div></div></div>';
+    });
+  });
+  var tot=S.projects.reduce(function(a,p){return a+p.val;},0);
+  h+='<div class="sec">الإجمالي الكلي</div><div class="fc">';
+  ['G','F','H'].forEach(function(dep){var t=S.projects.filter(function(p){return p.dep===dep;}).reduce(function(a,p){return a+p.val;},0);h+='<div class="fr"><span style="color:#64748b">'+dn[dep]+'</span><span>'+fn(t)+' ريال</span></div>';});
+  h+='<div class="fr"><span>الإجمالي</span><span style="color:#0369A1">'+fn(tot)+' ريال</span></div></div>';
+  document.getElementById('fin-content').innerHTML=h;
+}
+
+// ===== MEETINGS =====
+var DAY_ORDER=['الأحد','الاثنين','الثلاثاء','الأربعاء','الخميس','الجمعة','السبت'];
+function dayIdx(d){var i=DAY_ORDER.indexOf(d);return i>=0?i:99;}
+
+function renderMeetings(){
+  // جدول الاجتماعات
+  var sorted=S.meetings.slice().sort(function(a,b){
+    var di=dayIdx(a.day)-dayIdx(b.day);
+    if(di!==0)return di;
+    return (a.time||'').localeCompare(b.time||'');
+  });
+  var tb=document.getElementById('meet-tbody');tb.innerHTML='';
+  sorted.forEach(function(m){
+    var tr=document.createElement('tr');
+    tr.appendChild(makeCell(m.name,{type:'text',field:'name',recId:m.id,arr:S.meetings}));
+    tr.appendChild(makeCell(m.freq,{type:'select',choices:['أسبوعي','كل أسبوعين','شهري','ربع سنوي','عند الحاجة'],field:'freq',recId:m.id,arr:S.meetings}));
+    tr.appendChild(makeCell(m.day,{type:'select',choices:DAY_ORDER,field:'day',recId:m.id,arr:S.meetings}));
+    tr.appendChild(makeCell(m.time||'',{type:'select',choices:['7:00 ص','7:30 ص','8:00 ص','8:30 ص','9:00 ص','9:30 ص','10:00 ص','10:30 ص','11:00 ص','11:30 ص','12:00 م','12:30 م','1:00 م','1:30 م','2:00 م','2:30 م','3:00 م','3:30 م','4:00 م','4:30 م','5:00 م','5:30 م','6:00 م'],field:'time',recId:m.id,arr:S.meetings}));
+    tr.appendChild(makeCell(m.desc,{type:'text',field:'desc',recId:m.id,arr:S.meetings}));
+    var atd=document.createElement('td');
+    var eb=document.createElement('button');eb.className='abtn abtn-e';eb.textContent='تعديل';
+    eb.onclick=function(e){e.stopPropagation();openEditMeeting(m.id);};atd.appendChild(eb);
+    var db=document.createElement('button');db.className='abtn abtn-r';db.textContent='حذف';
+    db.onclick=function(e){e.stopPropagation();if(!confirm('حذف؟'))return;S.meetings=S.meetings.filter(function(x){return x.id!==m.id;});save();renderMeetings();};atd.appendChild(db);
+    tr.appendChild(atd);
+    tb.appendChild(tr);
+  });
+
+  // جدول المهام الأسبوعية
+  var ttb=document.getElementById('task-tbody');if(!ttb)return;ttb.innerHTML='';
+  var sortedTasks=(S.tasks||[]).slice().sort(function(a,b){return dayIdx(a.day)-dayIdx(b.day);});
+  sortedTasks.forEach(function(t){
+    var tr=document.createElement('tr');
+    tr.appendChild(makeCell(t.name,{type:'text',field:'name',recId:t.id,arr:S.tasks}));
+    tr.appendChild(makeCell(t.day,{type:'select',choices:DAY_ORDER,field:'day',recId:t.id,arr:S.tasks}));
+    tr.appendChild(makeCell(t.desc||'',{type:'text',field:'desc',recId:t.id,arr:S.tasks}));
+    var atd=document.createElement('td');
+    var eb=document.createElement('button');eb.className='abtn abtn-e';eb.textContent='تعديل';
+    eb.onclick=function(e){e.stopPropagation();openEditTask(t.id);};atd.appendChild(eb);
+    var db=document.createElement('button');db.className='abtn abtn-r';db.textContent='حذف';
+    db.onclick=function(e){e.stopPropagation();if(!confirm('حذف؟'))return;S.tasks=S.tasks.filter(function(x){return x.id!==t.id;});save();renderMeetings();};atd.appendChild(db);
+    tr.appendChild(atd);
+    tb.appendChild(tr);
+  });
+}
+function addMeeting(){
+  document.getElementById('meet-modal-title').textContent='إضافة اجتماع';
+  document.getElementById('mmt-name').value='';
+  document.getElementById('mmt-freq').value='أسبوعي';
+  document.getElementById('mmt-day').value='الأحد';
+  document.getElementById('mmt-time').value='';
+  document.getElementById('mmt-desc').value='';
+  document.getElementById('mmt-id').value='';
+  openM('meet-modal');
+}
+function openEditMeeting(id){
+  var m=S.meetings.find(function(x){return x.id===id;});if(!m)return;
+  document.getElementById('meet-modal-title').textContent='تعديل الاجتماع';
+  document.getElementById('mmt-name').value=m.name;
+  document.getElementById('mmt-freq').value=m.freq;
+  document.getElementById('mmt-day').value=m.day;
+  document.getElementById('mmt-time').value=m.time||'';
+  document.getElementById('mmt-desc').value=m.desc;
+  document.getElementById('mmt-id').value=id;
+  openM('meet-modal');
+}
+function saveMeeting(){
+  var id=document.getElementById('mmt-id').value;
+  var obj={
+    id:id?parseInt(id):nid(),
+    name:document.getElementById('mmt-name').value,
+    freq:document.getElementById('mmt-freq').value,
+    day:document.getElementById('mmt-day').value,
+    time:document.getElementById('mmt-time').value,
+    desc:document.getElementById('mmt-desc').value
+  };
+  if(!obj.name){toast('يرجى إدخال اسم الاجتماع');return;}
+  if(id){var i=S.meetings.findIndex(function(x){return x.id===parseInt(id);});if(i>=0)S.meetings[i]=obj;else S.meetings.push(obj);}
+  else S.meetings.push(obj);
+  save();closeM('meet-modal');renderMeetings();toast('تم الحفظ ✓');
+}
+
+// ===== TEMPLATES =====
+function renderTemplates(){
+  var labels={esc:'قالب التصعيد',del:'قالب تذكير المخرج'};
+  var colors={esc:'#991B1B',del:'#0369A1'};
+  var h='<p style="font-size:12px;color:#64748b;margin-bottom:10px;padding:8px 12px;background:#E0F2FE;border-radius:8px">عدّل النص مباشرة — المتغيرات: {مشروع} {تاريخ} {دفعة}</p>';
+  ['esc','del'].forEach(function(k){
+    h+='<div class="fc"><div style="font-size:13px;font-weight:700;color:'+colors[k]+';margin-bottom:8px">'+labels[k]+'</div>';
+    h+='<textarea id="tpl-'+k+'" style="width:100%;border:1px solid #e2e8f0;border-radius:8px;padding:10px;font-size:12px;color:#475569;line-height:1.7;font-family:inherit;min-height:160px;background:#F8FAFC" onchange="S.templates.'+k+'=this.value;save()">'+S.templates[k]+'</textarea></div>';
+  });
+  document.getElementById('tpl-cards').innerHTML=h;
+}
+
+// ===== EMAIL =====
+function showEmail(type,proj,num,date){
+  var t=S.templates[type]||'';
+  var body=tplFn(t,proj,date,num);
+  var subj={esc:'تصعيد: تأخر في تسليم المخرجات — '+proj,del:'تذكير: موعد تسليم المخرجات — '+proj,pay:'تذكير: موعد الدفعة — '+proj};
+  var title={esc:'إيميل تصعيد',del:'إيميل تذكير المخرج',pay:'إيميل تذكير الدفعة'};
+  document.getElementById('em-title').textContent=title[type]||'إيميل';
+  document.getElementById('em-subj').value=subj[type]||'';
+  document.getElementById('em-body').value=body;
+  openM('email-modal');
+}
+function copyEmail(){
+  var txt='إلى: '+document.getElementById('em-to').value+'\nالموضوع: '+document.getElementById('em-subj').value+'\n\n'+document.getElementById('em-body').value;
+  navigator.clipboard.writeText(txt).then(function(){toast('تم النسخ ✓');closeM('email-modal');}).catch(function(){toast('انسخي النص يدوياً');});
+}
+
+// ===== EXCEL IMPORT =====
+function handleExcel(input){
+  var file=input.files[0];if(!file)return;
+  var reader=new FileReader();
+  reader.onload=function(e){
+    try{
+      var data=new Uint8Array(e.target.result);
+      var wb=XLSX.read(data,{type:'array'});
+      var ws=wb.Sheets[wb.SheetNames[0]];
+      var rows=XLSX.utils.sheet_to_json(ws,{header:1,defval:''});
+      if(!rows||rows.length<2){toast('الملف فارغ أو لا يحتوي بيانات');return;}
+      xlHeaders=rows[0].map(function(h){return String(h);});
+      xlData=rows.slice(1).filter(function(r){return r.some(function(c){return c!=='';});});
+      showColMapping();
+      toast('تم قراءة '+xlData.length+' صف ✓');
+    }catch(err){toast('خطأ في قراءة الملف');}
+  };
+  reader.readAsArrayBuffer(file);
+  input.value='';
+}
+
+function showColMapping(){
+  var fields=[
+    {key:'proj',label:'اسم المشروع'},
+    {key:'dep',label:'القسم (G/F/H)'},
+    {key:'num',label:'رقم الدفعة'},
+    {key:'q',label:'رقم الربع'},
+    {key:'val',label:'قيمة الدفعة'},
+    {key:'delDate',label:'تاريخ تسليم المخرج'},
+    {key:'payDate',label:'تاريخ الدفعة'},
+    {key:'status',label:'حالة الدفعة'}
+  ];
+  var h='';
+  fields.forEach(function(f){
+    h+='<div class="col-map-row"><span class="col-map-label">'+f.label+'</span><select class="fi" style="flex:1" id="map-'+f.key+'"><option value="">— لا يوجد —</option>';
+    xlHeaders.forEach(function(hdr,i){
+      h+='<option value="'+i+'"'+autoMatch(hdr,f.key)+'>'+hdr+'</option>';
+    });
+    h+='</select></div>';
+  });
+  document.getElementById('col-mapping').innerHTML=h;
+  document.getElementById('xl-status').style.display='block';
+  // Preview
+  var prev='<div class="xl-preview"><strong>معاينة أول 3 صفوف:</strong><br>';
+  xlData.slice(0,3).forEach(function(r){prev+='<div style="border-bottom:1px solid #e2e8f0;padding:3px 0">'+r.slice(0,6).join(' | ')+'</div>';});
+  prev+='</div>';
+  document.getElementById('xl-preview').innerHTML=prev;
+}
+
+function autoMatch(header,key){
+  var hLower=header.toLowerCase();
+  var maps={proj:['مشروع','project','اسم'],dep:['dep','قسم','portfolio'],num:['رقم الدفعة','payment','دفعة'],q:['ربع','quarter','q'],val:['قيمة','value','amount','مبلغ'],delDate:['تسليم','delivery','مخرج','تاريخ استلام'],payDate:['دفعة','payment date','baseline','base'],status:['حالة','status']};
+  var keywords=maps[key]||[];
+  for(var i=0;i<keywords.length;i++){if(hLower.indexOf(keywords[i])>=0)return ' selected';}
+  return '';
+}
+
+function applyExcel(){
+  var fields=['proj','dep','num','q','val','delDate','payDate','status'];
+  var colIdx={};
+  fields.forEach(function(f){var sel=document.getElementById('map-'+f);if(sel&&sel.value!=='')colIdx[f]=parseInt(sel.value);});
+  if(!colIdx.proj){toast('يرجى تحديد عمود اسم المشروع على الأقل');return;}
+  var newPays=[];
+  var idStart=nid();
+  xlData.forEach(function(row,i){
+    var p={id:idStart+i,dep:'G',proj:'',num:i+1,q:'',val:0,delDate:'',payDate:'',status:'Not Started',reason:''};
+    fields.forEach(function(f){
+      if(colIdx[f]!==undefined){
+        var v=row[colIdx[f]];
+        if(f==='val')p[f]=parseFloat(String(v).replace(/,/g,''))||0;
+        else if(f==='num')p[f]=parseInt(v)||i+1;
+        else if(f==='delDate'||f==='payDate'){
+          if(v){
+            try{
+              if(typeof v==='number'){var d=new Date(Math.round((v-25569)*86400*1000));p[f]=d.toISOString().split('T')[0];}
+              else{var dd2=new Date(v);if(!isNaN(dd2))p[f]=dd2.toISOString().split('T')[0];else p[f]=String(v);}
+            }catch(e){p[f]=String(v);}
+          }
+        }
+        else if(f==='status'){
+          var sv=String(v).toLowerCase();
+          if(sv.indexOf('paid')>=0||sv.indexOf('مدفوع')>=0)p[f]='Paid';
+          else if(sv.indexOf('process')>=0||sv.indexOf('صرف')>=0)p[f]='Under Process';
+          else if(sv.indexOf('delay')>=0||sv.indexOf('متأخر')>=0)p[f]='Delayed';
+          else if(sv.indexOf('deliver')>=0||sv.indexOf('تسليم')>=0)p[f]='Delivered';
+          else p[f]='Not Started';
+        }
+        else p[f]=String(v||'');
+      }
+    });
+    if(p.proj)newPays.push(p);
+  });
+  if(!newPays.length){toast('لم يتم العثور على بيانات صالحة');return;}
+  if(confirm('سيتم إضافة '+newPays.length+' دفعة. هل تريد إضافتها للبيانات الحالية؟\n(اضغط إلغاء لاستبدال الدفعات الحالية بدلاً من الإضافة)')){
+    S.payments=S.payments.concat(newPays);
+  } else {
+    S.payments=newPays;
+  }
+  S.nextId=idStart+newPays.length+1;
+  save();
+  document.getElementById('xl-status').style.display='none';
+  document.getElementById('xl-preview').innerHTML='';
+  xlData=null;xlHeaders=[];
+  toast('تم استيراد '+newPays.length+' دفعة بنجاح ✓');
+}
+
+// ===== EXPORT/IMPORT/RESET =====
+function importData(inp){
+  var f=inp.files[0];if(!f)return;
+  var r=new FileReader();
+  r.onload=function(e){
+    try{var d=JSON.parse(e.target.result);if(!d.projects||!d.payments){toast('الملف غير صحيح');return;}if(!confirm('الاستيراد سيستبدل البيانات الحالية. متأكدة؟'))return;S=d;localStorage.setItem('pmo_v8',JSON.stringify(S));renderHome();toast('تم الاستيراد ✓');}
+    catch(e){toast('خطأ في قراءة الملف');}
+  };
+  r.readAsText(f);inp.value='';
+}
+function resetData(){
+  if(!confirm('إعادة التعيين ستمسح كل التعديلات. متأكدة؟'))return;
+  S=JSON.parse(JSON.stringify(DD));localStorage.setItem('pmo_v8',JSON.stringify(S));renderHome();toast('تمت إعادة التعيين');
+}
+
+function esc(s){return(s||'').replace(/'/g,"\\'");}
+
+// ===== REPORT =====
+function renderReport(){
+  var now=new Date();
+  var months=['يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر'];
+  var dateStr=now.getDate()+' '+months[now.getMonth()]+' '+now.getFullYear();
+  var dn={'G':'G','F':'F','H':'H'};
+
+  var showFinancial=document.getElementById('rpt-financial')&&document.getElementById('rpt-financial').checked;
+  var showPayments=document.getElementById('rpt-payments')&&document.getElementById('rpt-payments').checked;
+  var showProjects=document.getElementById('rpt-projects')&&document.getElementById('rpt-projects').checked;
+  var showTenders=document.getElementById('rpt-tenders')&&document.getElementById('rpt-tenders').checked;
+  var showDelayed=document.getElementById('rpt-delayed')&&document.getElementById('rpt-delayed').checked;
+  var showMonthly=document.getElementById('rpt-monthly')&&document.getElementById('rpt-monthly').checked;
+
+  var sectionNum=1;
+  function secTitle(title){
+    var nums=['أولاً','ثانياً','ثالثاً','رابعاً','خامساً','سادساً'];
+    return '<div style="font-size:14px;font-weight:700;color:#0369A1;margin-bottom:10px;border-right:4px solid #0369A1;padding-right:8px">'+(nums[sectionNum-1]||sectionNum+'.')+': '+title+'</div>';
+    sectionNum++;
+  }
+
+  var h='<div id="printable-report" style="direction:rtl;font-family:Segoe UI,Tahoma,Arial,sans-serif;color:#1e293b;max-width:900px;margin:0 auto">';
+  h+='<div style="text-align:center;padding:20px 0 14px;border-bottom:2px solid #0369A1;margin-bottom:20px">';
+  h+='<div style="font-size:20px;font-weight:700;color:#0369A1">المساعد الآلي</div>';
+  h+='<div style="font-size:13px;color:#64748b;margin-top:4px">تقرير شامل | '+dateStr+'</div>';
+  h+='</div>';
+
+  var nums=['أولاً','ثانياً','ثالثاً','رابعاً','خامساً','سادساً'];
+  var sec=0;
+  function st(title){return '<div style="font-size:14px;font-weight:700;color:#0369A1;margin:16px 0 10px;border-right:4px solid #0369A1;padding-right:8px">'+(nums[sec++]||sec+'.')+': '+title+'</div>';}
+  function tblStyle(){return 'width:100%;border-collapse:collapse;font-size:12px;margin-bottom:16px';}
+  function thStyle(){return 'background:#0369A1;color:#fff;padding:7px 10px;text-align:right;border:1px solid #0284c7';}
+  function tdStyle(i){return 'padding:6px 10px;border:1px solid #e2e8f0;background:'+(i%2===0?'#F8FAFC':'#fff');}
+
+  // ١. الملخص المالي
+  if(showFinancial){
+    h+=st('الملخص المالي للمحافظ');
+    h+='<table style="'+tblStyle()+'"><thead><tr>';
+    ['المحفظة','عدد المشاريع','إجمالي المشاريع','مدفوع','تحت الصرف','متأخر','لم يبدأ'].forEach(function(t){h+='<th style="'+thStyle()+'">'+t+'</th>';});
+    h+='</tr></thead><tbody>';
+    ['G','F','H'].forEach(function(dep,i){
+      var projs=S.projects.filter(function(p){return p.dep===dep;});
+      var tot=projs.reduce(function(a,p){return a+p.val;},0);
+      var paid=S.payments.filter(function(p){return p.dep===dep&&p.status==='Paid';}).reduce(function(a,p){return a+p.val;},0);
+      var under=S.payments.filter(function(p){return p.dep===dep&&p.status==='Under Process';}).reduce(function(a,p){return a+p.val;},0);
+      var delayed=S.payments.filter(function(p){return p.dep===dep&&p.status==='Delayed';}).reduce(function(a,p){return a+p.val;},0);
+      var ns=S.payments.filter(function(p){return p.dep===dep&&p.status==='Not Started';}).reduce(function(a,p){return a+p.val;},0);
+      h+='<tr><td style="'+tdStyle(i)+';font-weight:700;color:#0369A1">'+dn[dep]+'</td><td style="'+tdStyle(i)+'">'+projs.length+'</td><td style="'+tdStyle(i)+';font-weight:700">'+fn(tot)+' ﷼</td><td style="'+tdStyle(i)+';color:#065F46">'+fn(paid)+' ﷼</td><td style="'+tdStyle(i)+';color:#92400E">'+fn(under)+' ﷼</td><td style="'+tdStyle(i)+';color:#991B1B">'+fn(delayed)+' ﷼</td><td style="'+tdStyle(i)+';color:#64748b">'+fn(ns)+' ﷼</td></tr>';
+    });
+    var gt=S.projects.reduce(function(a,p){return a+p.val;},0);
+    h+='<tr style="background:#E0F2FE;font-weight:700"><td style="padding:7px 10px;border:1px solid #e2e8f0">الإجمالي</td><td style="padding:7px 10px;border:1px solid #e2e8f0"></td><td style="padding:7px 10px;border:1px solid #e2e8f0;color:#0369A1">'+fn(gt)+' ﷼</td><td colspan="4" style="border:1px solid #e2e8f0"></td></tr>';
+    h+='</tbody></table>';
+  }
+
+  // ٢. تفاصيل الدفعات
+  if(showPayments){
+    h+=st('تفاصيل الدفعات');
+    h+='<table style="'+tblStyle()+'"><thead><tr>';
+    ['المشروع','القسم','#','القيمة','تسليم المخرج','تاريخ الدفعة','الحالة'].forEach(function(t){h+='<th style="'+thStyle()+'">'+t+'</th>';});
+    h+='</tr></thead><tbody>';
+    var statusColors={'Paid':'#065F46','Under Process':'#0369A1','Delayed':'#991B1B','Delivered':'#065F46','Not Started':'#64748b'};
+    S.payments.forEach(function(p,i){
+      var s=sm(p.status);
+      h+='<tr><td style="'+tdStyle(i)+'">'+p.proj+'</td><td style="'+tdStyle(i)+'">'+p.dep+'</td><td style="'+tdStyle(i)+';text-align:center">'+p.num+'</td><td style="'+tdStyle(i)+'">'+fn(p.val)+' ﷼</td><td style="'+tdStyle(i)+'">'+fd(p.delDate)+'</td><td style="'+tdStyle(i)+'">'+fd(p.payDate)+'</td><td style="'+tdStyle(i)+';font-weight:700;color:'+(statusColors[p.status]||'#64748b')+'">'+s.l+'</td></tr>';
+    });
+    h+='</tbody></table>';
+  }
+
+  // ٣. الدفعات المتأخرة فقط
+  if(showDelayed){
+    var late=S.payments.filter(function(p){return p.status==='Delayed'||(['Paid','Under Process'].indexOf(p.status)<0&&p.payDate&&dd(p.payDate)<0);});
+    h+=st('الدفعات المتأخرة ('+late.length+' دفعة)');
+    if(late.length){
+      h+='<table style="'+tblStyle()+'"><thead><tr>';
+      ['المشروع','القسم','#','القيمة','تاريخ الدفعة','أيام التأخير','السبب'].forEach(function(t){h+='<th style="'+thStyle()+'">'+t+'</th>';});
+      h+='</tr></thead><tbody>';
+      late.forEach(function(p,i){
+        var daysLate=p.payDate?Math.abs(dd(p.payDate)):'-';
+        h+='<tr><td style="'+tdStyle(i)+'">'+(p.proj)+'</td><td style="'+tdStyle(i)+'">'+p.dep+'</td><td style="'+tdStyle(i)+';text-align:center">'+p.num+'</td><td style="'+tdStyle(i)+'">'+fn(p.val)+' ﷼</td><td style="'+tdStyle(i)+';color:#991B1B;font-weight:700">'+fd(p.payDate)+'</td><td style="'+tdStyle(i)+';color:#991B1B;font-weight:700">'+daysLate+' يوم</td><td style="'+tdStyle(i)+';color:#92400E">'+(p.reason||'—')+'</td></tr>';
+      });
+      h+='</tbody></table>';
+    } else {
+      h+='<div style="padding:10px;background:#D1FAE5;border-radius:8px;color:#065F46;font-size:13px;margin-bottom:16px">لا توجد دفعات متأخرة ✓</div>';
+    }
+  }
+
+  // ٤. مخرجات ودفعات هذا الشهر
+  if(showMonthly){
+    var curY=now.getFullYear(),curM=now.getMonth();
+    var mDels=S.payments.filter(function(p){if(!p.delDate)return false;var x=new Date(p.delDate);return x.getFullYear()===curY&&x.getMonth()===curM;});
+    var mPays=S.payments.filter(function(p){if(!p.payDate)return false;var x=new Date(p.payDate);return x.getFullYear()===curY&&x.getMonth()===curM;});
+    h+=st('مخرجات ودفعات '+months[curM]+' '+curY);
+    if(mDels.length){
+      h+='<div style="font-size:12px;font-weight:700;color:#64748b;margin-bottom:6px">مخرجات مستحقة التسليم:</div>';
+      h+='<table style="'+tblStyle()+'"><thead><tr>';
+      ['المشروع','القسم','#','تاريخ التسليم','الحالة'].forEach(function(t){h+='<th style="'+thStyle()+'">'+t+'</th>';});
+      h+='</tr></thead><tbody>';
+      mDels.forEach(function(p,i){var s=sm(p.status);h+='<tr><td style="'+tdStyle(i)+'">'+p.proj+'</td><td style="'+tdStyle(i)+'">'+p.dep+'</td><td style="'+tdStyle(i)+';text-align:center">'+p.num+'</td><td style="'+tdStyle(i)+'">'+fd(p.delDate)+'</td><td style="'+tdStyle(i)+';font-weight:700">'+s.l+'</td></tr>';});
+      h+='</tbody></table>';
+    }
+    if(mPays.length){
+      h+='<div style="font-size:12px;font-weight:700;color:#64748b;margin-bottom:6px">دفعات مستحقة:</div>';
+      h+='<table style="'+tblStyle()+'"><thead><tr>';
+      ['المشروع','القسم','#','القيمة','تاريخ الدفعة','الحالة'].forEach(function(t){h+='<th style="'+thStyle()+'">'+t+'</th>';});
+      h+='</tr></thead><tbody>';
+      mPays.forEach(function(p,i){var s=sm(p.status);h+='<tr><td style="'+tdStyle(i)+'">'+p.proj+'</td><td style="'+tdStyle(i)+'">'+p.dep+'</td><td style="'+tdStyle(i)+';text-align:center">'+p.num+'</td><td style="'+tdStyle(i)+'">'+fn(p.val)+' ﷼</td><td style="'+tdStyle(i)+'">'+fd(p.payDate)+'</td><td style="'+tdStyle(i)+';font-weight:700">'+s.l+'</td></tr>';});
+      h+='</tbody></table>';
+    }
+  }
+
+  // ٥. المشاريع القائمة
+  if(showProjects){
+    h+=st('المشاريع القائمة');
+    h+='<table style="'+tblStyle()+'"><thead><tr>';
+    ['اسم المشروع','القسم','النوع','القيمة','المدة (شهر)','الحالة'].forEach(function(t){h+='<th style="'+thStyle()+'">'+t+'</th>';});
+    h+='</tr></thead><tbody>';
+    S.projects.forEach(function(p,i){h+='<tr><td style="'+tdStyle(i)+';font-weight:600">'+p.name+'</td><td style="'+tdStyle(i)+'">'+p.dep+'</td><td style="'+tdStyle(i)+'">'+p.projType+'</td><td style="'+tdStyle(i)+';font-weight:700">'+fn(p.val)+' ﷼</td><td style="'+tdStyle(i)+';text-align:center">'+(p.duration||'—')+'</td><td style="'+tdStyle(i)+'">'+p.status+'</td></tr>';}); 
+    h+='</tbody></table>';
+  }
+
+  // ٦. المشاريع تحت الطرح
+  if(showTenders&&S.tenders.length){
+    h+=st('المشاريع تحت الطرح');
+    h+='<table style="'+tblStyle()+'"><thead><tr>';
+    ['اسم المشروع','القسم','النوع','ملاحظات'].forEach(function(t){h+='<th style="'+thStyle()+'">'+t+'</th>';});
+    h+='</tr></thead><tbody>';
+    S.tenders.forEach(function(t,i){h+='<tr><td style="'+tdStyle(i)+'">'+t.name+'</td><td style="'+tdStyle(i)+'">'+t.dep+'</td><td style="'+tdStyle(i)+'">'+t.type+'</td><td style="'+tdStyle(i)+';color:#64748b">'+(t.notes||'—')+'</td></tr>';});
+    h+='</tbody></table>';
+  }
+
+  h+='<div style="text-align:center;font-size:11px;color:#94a3b8;padding:16px 0;border-top:1px solid #e2e8f0;margin-top:10px">تم إنشاء هذا التقرير بتاريخ '+dateStr+'</div>';
+  h+='</div>';
+  document.getElementById('report-content').innerHTML=h;
+}
+
+function printReport(){
+  renderReport();
+  var content=document.getElementById('printable-report');
+  if(!content){toast('لا توجد بيانات للطباعة');return;}
+  var w=window.open('','_blank');
+  w.document.write('<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"><title>المساعد الآلي</title><style>body{font-family:Segoe UI,Tahoma,Arial,sans-serif;direction:rtl;margin:20px;color:#1e293b}table{width:100%;border-collapse:collapse}th,td{border:1px solid #e2e8f0;padding:6px 10px}thead th{background:#0369A1;color:#fff}tr:nth-child(even){background:#F8FAFC}@media print{body{margin:10px}}</style></head><body>');
+  w.document.write(content.innerHTML);
+  w.document.write('</body></html>');
+  w.document.close();
+  w.focus();
+  setTimeout(function(){w.print();},500);
+}
+
+// ===== INSERT TABLE IN EMAIL =====
+function insertTable(){
+  var rows=prompt('كم صف تريد في الجدول؟ (بدون رأس الجدول)','3');
+  var cols=prompt('كم عمود تريد؟','3');
+  rows=parseInt(rows)||3; cols=parseInt(cols)||3;
+  var table='\n';
+  // رأس الجدول
+  var header='| ';
+  var sep='| ';
+  for(var c=0;c<cols;c++){header+='العمود '+(c+1)+' | ';sep+='--- | ';}
+  table+=header+'\n'+sep+'\n';
+  // الصفوف
+  for(var r=0;r<rows;r++){
+    var row='| ';
+    for(var c2=0;c2<cols;c2++){row+='     | ';}
+    table+=row+'\n';
+  }
+  table+='\n';
+  var ta=document.getElementById('em-body');
+  var pos=ta.selectionStart;
+  ta.value=ta.value.substring(0,pos)+table+ta.value.substring(pos);
+  ta.focus();
+  toast('تم إدراج الجدول ✓');
+}
+
+// ===== تصدير البيانات =====
+function exportData(){
+  var now = new Date();
+  var wdays=['الأحد','الاثنين','الثلاثاء','الأربعاء','الخميس','الجمعة','السبت'];
+  var dateStr = wdays[now.getDay()]+' '+now.toLocaleDateString('ar-SA-u-nu-latn');
+  var fileName = 'تقرير_'+now.getFullYear()+'-'+(now.getMonth()+1)+'-'+now.getDate()+'.html';
+
+  // جلب الكود الأصلي للصفحة من السيرفر
+  fetch(window.location.href)
+  .then(function(r){return r.text();})
+  .then(function(html){
+    // تضمين البيانات
+    var dataScript = '<script>var __EXPORTED_DATA__='+JSON.stringify(S)+';<\/script>';
+    html = html.replace('</head>', dataScript+'</head>');
+
+    // CSS للقراءة فقط
+    var css = '<style>'
+      +'.add-row{display:none!important}'
+      +'.hbtn{display:none!important}'
+      +'.saved{display:none!important}'
+      +'tbody td{cursor:default!important}'
+      +'</style>';
+    html = html.replace('</head>', css+'</head>');
+
+    // override للـ load وتعطيل التعديل
+    var initScript = '<script>'
+      +'function load(){if(typeof __EXPORTED_DATA__!=="undefined"){S=__EXPORTED_DATA__;}else{S=JSON.parse(JSON.stringify(DD));}}'
+      +'function save(){}'
+      +'document.addEventListener("DOMContentLoaded",function(){'
+      +'document.addEventListener("click",function(e){'
+      +'var td=e.target.closest("tbody td");'
+      +'if(td){e.stopImmediatePropagation();e.preventDefault();}'
+      +'},true);'
+      +'});<\/script>';
+    html = html.replace('</head>', initScript+'</head>');
+
+    // تغيير العنوان
+    html = html.replace(/<title>[^<]*<\/title>/, '<title>تقرير — '+dateStr+'</title>');
+
+    var blob = new Blob([html],{type:'text/html;charset=utf-8'});
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url;
+    a.download = fileName;
+    a.click();
+    URL.revokeObjectURL(url);
+    toast('✓ تم التصدير — أرسلي الملف لإيمان');
+  })
+  .catch(function(){
+    toast('⚠ خطأ في التصدير');
+  });
+}
+
+// ===== INIT =====
+var wdays=['الأحد','الاثنين','الثلاثاء','الأربعاء','الخميس','الجمعة','السبت'];
+document.getElementById('hdate').textContent=wdays[T.getDay()]+' '+T.toLocaleDateString('ar-SA-u-nu-latn');
+load();renderHome();
+</script>
+</body>
+</html>
